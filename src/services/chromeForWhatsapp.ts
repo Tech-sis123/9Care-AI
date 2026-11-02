@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { createRequire } from 'module';
@@ -69,6 +70,92 @@ export function desktopUserAgent(executablePath: string): string | null {
         ? 'Macintosh; Intel Mac OS X 10_15_7'
         : 'X11; Linux x86_64';
   return `Mozilla/5.0 (${os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${major}.0.0.0 Safari/537.36`;
+}
+
+/** Force-stops a Chrome and its child processes (Puppeteer starts Chrome in its own process group). */
+export function killProcessTree(pid: number) {
+  try {
+    if (process.platform === 'win32') {
+      execFileSync('taskkill', ['/pid', String(pid), '/T', '/F'], { stdio: 'ignore' });
+    } else {
+      process.kill(-pid, 'SIGKILL');
+    }
+  } catch {
+    try {
+      process.kill(pid, 'SIGKILL');
+    } catch {
+      // already gone
+    }
+  }
+}
+
+export function isProcessAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const procEntries = (): string[] => {
+  try {
+    return fs.readdirSync('/proc').filter((name) => /^\d+$/.test(name));
+  } catch {
+    return [];
+  }
+};
+
+const readProc = (pid: string, file: string) => {
+  try {
+    return fs.readFileSync(`/proc/${pid}/${file}`, 'utf8');
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * Linux: force-stops any Chrome still using this profile folder, left over from an earlier
+ * attempt that hung. Returns how many were stopped. (A frozen Chrome holds memory and the
+ * profile lock, which makes every later attempt slower until the server is restarted.)
+ */
+export function killChromeUsingProfile(profileDir: string): number {
+  let killed = 0;
+  for (const pid of procEntries()) {
+    if (Number(pid) === process.pid) continue;
+    const cmdline = readProc(pid, 'cmdline').split('\0');
+    if (!cmdline.some((arg) => arg === `--user-data-dir=${profileDir}`)) continue;
+    killProcessTree(Number(pid));
+    killed++;
+  }
+  return killed;
+}
+
+const readNumber = (file: string): number | null => {
+  try {
+    const text = fs.readFileSync(file, 'utf8').trim();
+    return /^\d+$/.test(text) ? Number(text) : null;
+  } catch {
+    return null;
+  }
+};
+
+/** Memory use against the server's real limit (container limit on Render), and how many Chrome processes run. */
+export function serverResources() {
+  // cgroup v2, then v1; a v1 "no limit" is a huge number
+  const used = readNumber('/sys/fs/cgroup/memory.current') ?? readNumber('/sys/fs/cgroup/memory/memory.usage_in_bytes');
+  let limit = readNumber('/sys/fs/cgroup/memory.max') ?? readNumber('/sys/fs/cgroup/memory/memory.limit_in_bytes');
+  if (limit && limit > 64 * 1024 ** 4) limit = null;
+  const mb = (bytes: number) => Math.round(bytes / 1024 ** 2);
+  // Running Chrome processes only: closed ones can linger as zombies (no memory) when the
+  // container's first process doesn't clean them up
+  const isZombie = (pid: string) => / Z /.test(readProc(pid, 'stat').replace(/^.*\)/, ''));
+  const chromeProcesses = procEntries().filter((pid) => readProc(pid, 'comm').trim().startsWith('chrome') && !isZombie(pid)).length;
+  return {
+    memory_used_mb: used != null ? mb(used) : mb(os.totalmem() - os.freemem()),
+    memory_limit_mb: limit != null ? mb(limit) : mb(os.totalmem()),
+    chrome_processes: process.platform === 'linux' ? chromeProcesses : null,
+  };
 }
 
 /** Downloads that Chrome into .cache/puppeteer and returns its path. */

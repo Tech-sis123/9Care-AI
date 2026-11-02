@@ -7,4 +7,6 @@ const { join } = require('path');
  */
 module.exports = {
   cacheDirectory: join(__dirname, '.cache', 'puppeteer'),
+  // WhatsApp runs full Chrome; the separate "headless shell" build is never used
+  'chrome-headless-shell': { skipDownload: true },
 };

@@ -321,6 +321,27 @@ const WhatsAppConnection = () => {
               Scan with the clinic's WhatsApp, not your personal number: every message 9Care sends will come from the phone that is linked here.
             </p>
           </section>
+
+          {conn?.server && (
+            <details className="bg-white rounded-xl custom-shadow border border-amber-50 px-5 py-3 text-xs text-on-surface-variant">
+              <summary className="cursor-pointer font-semibold">Server details</summary>
+              <dl className="mt-3 space-y-1.5">
+                <div className="flex justify-between gap-3">
+                  <dt>Memory in use</dt>
+                  <dd className={`font-mono ${conn.server.memory_used_mb > conn.server.memory_limit_mb * 0.85 ? 'text-red-700 font-semibold' : ''}`}>
+                    {conn.server.memory_used_mb} MB of {conn.server.memory_limit_mb} MB
+                  </dd>
+                </div>
+                {conn.server.chrome_processes != null && (
+                  <div className="flex justify-between gap-3">
+                    <dt>Chrome processes</dt>
+                    <dd className="font-mono">{conn.server.chrome_processes}</dd>
+                  </div>
+                )}
+              </dl>
+              <p className="mt-3">WhatsApp needs about 600 MB free on the server. Send a screenshot of this if linking keeps failing.</p>
+            </details>
+          )}
         </aside>
       </div>
     </div>

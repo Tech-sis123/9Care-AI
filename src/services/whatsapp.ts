@@ -4,7 +4,15 @@ import { logger } from '../utils/logger';
 import prisma from '../config/prisma';
 import { env } from '../config/env';
 import { Client, LocalAuth } from 'whatsapp-web.js';
-import { desktopUserAgent, downloadChrome, findChrome } from './chromeForWhatsapp';
+import {
+  desktopUserAgent,
+  downloadChrome,
+  findChrome,
+  isProcessAlive,
+  killChromeUsingProfile,
+  killProcessTree,
+  serverResources,
+} from './chromeForWhatsapp';
 import qrcode from 'qrcode-terminal';
 import QRCode from 'qrcode';
 import { whatsappBot } from './whatsappBot';
@@ -88,8 +96,25 @@ function clearLinked() {
   fs.rmSync(linkedMarker(), { force: true });
 }
 
-// Recommended for Chrome in containers (small /dev/shm, no GPU, often no sandbox support)
-const CHROME_ARGS = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'];
+const CHROME_ARGS = [
+  // Needed for Chrome in containers (small /dev/shm, no GPU, often no sandbox support)
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-dev-shm-usage',
+  '--disable-gpu',
+  // Save memory on small servers: no extras WhatsApp Web doesn't need, fewer helper processes
+  '--no-first-run',
+  '--no-default-browser-check',
+  '--disable-extensions',
+  '--disable-background-networking',
+  '--disable-default-apps',
+  '--disable-sync',
+  '--mute-audio',
+  '--disable-features=Translate,MediaRouter,OptimizationHints,BackForwardCache,site-per-process',
+  '--renderer-process-limit=2',
+];
+// A Chrome that doesn't close within this time is force-stopped
+const CLOSE_TIMEOUT_MS = 15000;
 let chromeDownload: Promise<string> | null = null;
 
 /**
@@ -124,7 +149,27 @@ function startErrorMessage(err: unknown): string {
   if (/Could not find Chrome|Browser was not found|executablePath/i.test(text)) {
     return 'Chrome, which WhatsApp Web needs, was not found on the server. Try again, or ask your technical team to check the server.';
   }
+  if (/timed out|protocolTimeout|auth timeout|Timeout/i.test(text)) {
+    return 'WhatsApp Web took too long to load on the server. This usually means the server is short of memory or processing power. Try again; if it keeps happening, the server plan needs more memory.';
+  }
   return 'The server could not open WhatsApp Web. Try again, or ask your technical team to check the server.';
+}
+
+/**
+ * Closes a WhatsApp client's Chrome. A Chrome that has frozen never answers a polite close,
+ * so after CLOSE_TIMEOUT_MS it is force-stopped; otherwise it keeps holding memory and makes
+ * every later attempt slower.
+ */
+async function shutdownClient(c: Client, how: 'destroy' | 'logout' = 'destroy') {
+  const pid: number | undefined = (c as any).pupBrowser?.process?.()?.pid;
+  const closing = (how === 'logout' ? c.logout() : c.destroy()).catch((err) =>
+    logger.warn({ err: String(err?.message || err) }, 'WhatsApp Chrome did not close cleanly')
+  );
+  await Promise.race([closing, new Promise((r) => setTimeout(r, CLOSE_TIMEOUT_MS))]);
+  if (pid && isProcessAlive(pid)) {
+    logger.warn({ pid }, 'Force-stopping a WhatsApp Chrome that did not close');
+    killProcessTree(pid);
+  }
 }
 
 /** Finds Chrome (downloading it if needed), then opens WhatsApp Web. */
@@ -136,6 +181,9 @@ function startClient(attempt = 1) {
   resolveChrome()
     .then((executablePath) => {
       if (!current()) return;
+      // Nothing should be using the profile now; anything that is was left behind by a hung attempt
+      const leftovers = killChromeUsingProfile(sessionDir());
+      if (leftovers) logger.warn({ leftovers }, 'Stopped leftover WhatsApp Chrome processes before starting');
       setState({ stage: null });
       client = createClient(executablePath, attempt, current);
     })
@@ -224,7 +272,10 @@ function createClient(executablePath: string, attempt: number, current: () => bo
     if (!current()) return;
     const expired = String(reason).includes('Max qrcode retries');
     logger.warn({ reason }, 'WhatsApp disconnected');
-    if (expired) client = null; // whatsapp-web.js closes the browser itself
+    if (expired) {
+      client = null;
+      void shutdownClient(c); // whatsapp-web.js closes it too; this makes sure it really stops
+    }
     if (reason === 'LOGOUT') clearLinked(); // unlinked from the phone
     setState({
       status: expired ? 'expired' : 'disconnected',
@@ -240,7 +291,7 @@ function createClient(executablePath: string, attempt: number, current: () => bo
     // WhatsApp Web sometimes reloads itself while loading (often on a fresh profile); trying again usually works
     if (attempt < START_ATTEMPTS && TRANSIENT_START_ERROR.test(String(err?.message || err))) {
       logger.warn({ err: String(err?.message || err), attempt }, 'WhatsApp Web reloaded while starting, trying again');
-      await c.destroy().catch(() => {}); // free the browser profile before reopening it
+      await shutdownClient(c); // free the browser profile before reopening it
       if (current()) startClient(attempt + 1);
       return;
     }
@@ -253,7 +304,7 @@ function createClient(executablePath: string, attempt: number, current: () => bo
       error: startErrorMessage(err),
       detail: String(err?.message || err).slice(0, 300),
     });
-    c.destroy().catch(() => {});
+    void shutdownClient(c);
   });
 
   return c;
@@ -263,7 +314,7 @@ async function closeClient() {
   const old = client;
   client = null;
   generation++;
-  if (old) await old.destroy().catch((err) => logger.warn({ err }, 'Could not close WhatsApp client'));
+  if (old) await shutdownClient(old);
 }
 
 /** Starts WhatsApp Web (shows a QR code unless a saved login reconnects). restart=true closes the current one first. */
@@ -283,7 +334,7 @@ export async function logoutWhatsApp() {
   generation++;
   if (old) {
     const loggedIn = state.status === 'ready' || state.status === 'authenticating';
-    await (loggedIn ? old.logout() : old.destroy()).catch((err) => logger.warn({ err }, 'WhatsApp logout did not finish cleanly'));
+    await shutdownClient(old, loggedIn ? 'logout' : 'destroy');
   }
   clearLinked();
   await fs.promises
@@ -312,6 +363,8 @@ export async function getWhatsAppStatus() {
     error: state.error,
     detail: state.detail,
     has_saved_login: hasSavedSession(),
+    // Shown under "Server details" on the page, since the hosting logs aren't visible to everyone
+    server: serverResources(),
     updated_at: state.updatedAt,
   };
 }

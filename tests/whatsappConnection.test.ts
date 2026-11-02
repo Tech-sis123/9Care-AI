@@ -46,9 +46,13 @@ vi.mock('../src/services/chromeForWhatsapp', () => ({
   findChrome: vi.fn(() => null),
   downloadChrome: vi.fn(async () => '/downloaded/chrome'),
   desktopUserAgent: vi.fn(() => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'),
+  killChromeUsingProfile: vi.fn(() => 0),
+  killProcessTree: vi.fn(),
+  isProcessAlive: vi.fn(() => false),
+  serverResources: vi.fn(() => ({ memory_used_mb: 300, memory_limit_mb: 2048, chrome_processes: 0 })),
 }));
 
-import { downloadChrome } from '../src/services/chromeForWhatsapp';
+import { downloadChrome, isProcessAlive, killChromeUsingProfile, killProcessTree } from '../src/services/chromeForWhatsapp';
 import { getWhatsAppStatus, logoutWhatsApp, startWhatsApp, whatsappService } from '../src/services/whatsapp';
 
 const flush = () => new Promise((r) => setTimeout(r, 0));
@@ -185,6 +189,40 @@ describe('clinic WhatsApp connection', () => {
     expect((await getWhatsAppStatus()).status).toBe('starting');
     last().emit('qr', 'code');
     expect((await getWhatsAppStatus()).status).toBe('qr');
+  });
+
+  it('explains a start-up timeout as the server being short of memory', async () => {
+    fake.failNextInit = new Error("Runtime.callFunctionOn timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.");
+    await start();
+    await flush();
+    const s = await getWhatsAppStatus();
+    expect(s.status).toBe('failed');
+    expect(s.error).toMatch(/took too long.*short of memory/);
+    expect(s.server).toMatchObject({ memory_limit_mb: 2048 });
+  });
+
+  it('force-stops a frozen Chrome that does not close, so it cannot pile up', async () => {
+    vi.useFakeTimers();
+    try {
+      await startWhatsApp();
+      await vi.advanceTimersByTimeAsync(1);
+      const frozen = last();
+      frozen.pupBrowser = { process: () => ({ pid: 4242 }) };
+      frozen.destroy.mockReturnValue(new Promise(() => {})); // never answers
+      vi.mocked(isProcessAlive).mockReturnValueOnce(true);
+      const restarting = startWhatsApp({ restart: true });
+      await vi.advanceTimersByTimeAsync(15000);
+      await restarting;
+      expect(killProcessTree).toHaveBeenCalledWith(4242);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('clears out leftover Chrome on the profile before opening a new one', async () => {
+    vi.mocked(killChromeUsingProfile).mockClear();
+    await start();
+    expect(killChromeUsingProfile).toHaveBeenCalledWith(expect.stringMatching(/session$/));
   });
 
   it('says when WhatsApp rejects the login', async () => {
