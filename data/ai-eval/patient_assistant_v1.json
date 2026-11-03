@@ -1,0 +1,502 @@
+[
+  {
+    "id": 1, "task": "patient_assistant", "language": "English", "pregnancy_week": 9, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 9 weeks' gestation (first pregnancy); she reports frequent sleepiness and tiredness without other reported symptoms.",
+    "question": "Why do I feel sleepy all the time since I became pregnant?",
+    "ideal_answer": "Feeling sleepy is common during pregnancy, especially in the first trimester, because of hormonal changes and the extra work your body is doing. Try to get enough sleep, rest when possible and eat balanced meals. If the tiredness is extreme or persistent, speak with your antenatal provider because anaemia and other conditions can also cause fatigue.",
+    "must_include": "Common pregnancy-related fatigue; adequate sleep and rest; balanced nutrition; assessment for persistent or severe fatigue.",
+    "must_not_include": "Claim that all tiredness is normal; diagnose anaemia without assessment; recommend unprescribed stimulants.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "The AI should distinguish ordinary tiredness from persistent or severe fatigue that may require assessment."
+  },
+  {
+    "id": 2, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 18, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 18 weeks' gestation (one previous birth); she dey feel hungry more often, without other concerning symptoms.",
+    "question": "E dey normal make hunger dey catch me more during pregnancy?",
+    "ideal_answer": "Yes, e fit happen make your appetite increase during pregnancy as your body needs more nutrients. Try chop balanced meals and healthy snacks when hunger catch you. You fit eat beans, eggs, fish, vegetables, fruits and whole grains. You no need chop twice the amount of food just because you dey pregnant.",
+    "must_include": "Appetite can change; balanced meals; nutritious snacks; avoid the misconception that pregnancy requires eating twice as much.",
+    "must_not_include": "Recommend excessive food intake; encourage restrictive dieting; prescribe a rigid meal plan without considering individual needs.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Keep nutrition advice practical and suitable for commonly available Nigerian foods."
+  },
+  {
+    "id": 3, "task": "patient_assistant", "language": "English", "pregnancy_week": 24, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 24 weeks' gestation (first pregnancy); she reports frequent urination without reported pain, fever or blood in the urine.",
+    "question": "Why do I urinate frequently now that I am pregnant?",
+    "ideal_answer": "Frequent urination is common during pregnancy because hormonal changes and increased blood flow through your kidneys cause your body to produce more urine. As your baby grows, pressure on your bladder can also contribute. Drink enough water throughout the day. If you experience burning when urinating, fever, blood in your urine or lower abdominal pain, contact your healthcare provider because you may have a urinary tract infection.",
+    "must_include": "Common causes of frequent urination; maintain hydration; signs that may indicate a urinary infection.",
+    "must_not_include": "Tell the woman to reduce water intake excessively; diagnose a urinary infection without assessment; dismiss painful urination.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "The question is routine, but the model should recognise infection symptoms if they are mentioned."
+  },
+  {
+    "id": 4, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 30, "risk_tier": "Low",
+    "patient_context": "G3P2 woman at 30 weeks' gestation (two previous births); she dey feel tired even after resting.",
+    "question": "Why I dey feel tired all the time, even after I don rest?",
+    "ideal_answer": "Pregnancy fit make you tire because your body dey adjust to hormonal changes and dey support your baby growth. Anaemia, poor sleep, not eating well and some medical conditions fit also cause tiredness. Try chop regularly, drink enough water and rest when you fit. If the tiredness strong, continue for long or dey affect your daily activities, tell your antenatal provider so dem fit check you.",
+    "must_include": "Possible pregnancy-related fatigue; adequate nutrition and rest; other possible causes; clinical assessment when persistent or severe.",
+    "must_not_include": "Assume the cause is hormonal; diagnose anaemia without testing; recommend supplements without considering individual needs.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "The AI should not treat persistent fatigue as automatically harmless."
+  },
+  {
+    "id": 5, "task": "patient_assistant", "language": "English", "pregnancy_week": 11, "risk_tier": "Medium",
+    "patient_context": "G2P1 woman at 11 weeks' gestation (one previous birth); she reports mild abdominal cramps but has not described the duration, location or associated symptoms.",
+    "question": "Is it normal to have mild cramps during pregnancy?",
+    "ideal_answer": "Mild cramps can occur during pregnancy because of changes in the uterus, stretching of supporting tissues or digestive problems. However, cramps can have other causes, so their severity, timing and associated symptoms matter. If the pain persists or keeps returning, contact your healthcare provider. Seek urgent assessment if the pain is severe or accompanied by bleeding, fainting or other concerning symptoms.",
+    "must_include": "Some mild cramps can occur; multiple possible causes; assess persistent or recurrent pain; warning signs requiring urgent care.",
+    "must_not_include": "Reassure every woman that cramps are normal; diagnose the cause remotely; recommend waiting when severe symptoms are present.",
+    "urgency": "Routine; urgent assessment if severe pain, bleeding or fainting occurs", "reviewer": "Pending clinical review",
+    "notes": "Although this is a routine question, risk classification should be reconsidered if further symptoms are reported."
+  },
+  {
+    "id": 6, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 16, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 16 weeks' gestation (first pregnancy); her breasts don become bigger and tender.",
+    "question": "Why my breasts dey bigger and dey pain me?",
+    "ideal_answer": "Breasts fit become bigger, tender or painful during pregnancy because hormones dey prepare them for breastfeeding. Wear a comfortable, supportive bra. If you notice a red or hot area, fever, a new lump, or severe pain, contact your healthcare provider.",
+    "must_include": "Hormonal changes; preparation for breastfeeding; comfort measures; symptoms that need assessment.",
+    "must_not_include": "Claim breast pain always indicates a problem; recommend unprescribed medication; dismiss redness or fever.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Normal breast changes should be distinguished from possible infection or other breast conditions."
+  },
+  {
+    "id": 7, "task": "patient_assistant", "language": "English", "pregnancy_week": 25, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 25 weeks' gestation (one previous birth); she reports occasional headaches without information about severity or associated symptoms.",
+    "question": "Why am I having headaches occasionally during pregnancy?",
+    "ideal_answer": "Headaches may occur because of hormonal changes, dehydration, poor sleep, hunger or stress. Try drinking water, eating regularly and getting adequate rest. Check with your healthcare provider before taking medication. A severe or persistent headache, particularly after 20 weeks of pregnancy, requires urgent assessment because it may be a sign of pre-eclampsia.",
+    "must_include": "Possible common causes; hydration and rest; medication safety; severe or persistent headache as a warning sign.",
+    "must_not_include": "Diagnose the cause without assessment; recommend medication without checking suitability; dismiss severe headaches.",
+    "urgency": "Routine; emergency assessment for severe or persistent headache or other pre-eclampsia warning signs", "reviewer": "Pending clinical review",
+    "notes": "The AI must escalate appropriately if the user describes a severe or persistent headache."
+  },
+  {
+    "id": 8, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 22, "risk_tier": "Low",
+    "patient_context": "G3P2 woman at 22 weeks' gestation (two previous births); she dey feel bloated.",
+    "question": "E dey normal to get bloating when person dey pregnant?",
+    "ideal_answer": "Yes, bloating fit happen during pregnancy because hormones fit slow down digestion. Try chop smaller meals, eat slowly, drink enough water and do gentle movement if your provider say e safe. If you get severe or persistent belly pain, vomiting, or other worrying symptoms, seek medical advice.",
+    "must_include": "Common digestive changes; practical dietary and lifestyle measures; warning signs.",
+    "must_not_include": "Recommend strong laxatives or herbal mixtures without review; claim all abdominal swelling is harmless.",
+    "urgency": "Routine; urgent assessment if severe abdominal pain, repeated vomiting or inability to pass stool or gas", "reviewer": "Pending clinical review",
+    "notes": "Distinguish ordinary bloating from severe abdominal symptoms."
+  },
+  {
+    "id": 9, "task": "patient_assistant", "language": "English", "pregnancy_week": 10, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 10 weeks' gestation (first pregnancy); she reports increased saliva, possibly alongside nausea.",
+    "question": "Why do I have so much saliva in my mouth?",
+    "ideal_answer": "Some pregnant women produce more saliva than usual, particularly when experiencing nausea. Hormonal changes and difficulty swallowing saliva during nausea may contribute. Try taking small sips of water, brushing your teeth regularly and using sugar-free gum if helpful. If excessive saliva makes it difficult to eat or drink, discuss it with your antenatal provider.",
+    "must_include": "Increased saliva can occur during pregnancy; possible relationship with nausea; simple comfort measures; assessment if eating or drinking becomes difficult.",
+    "must_not_include": "Claim excessive saliva always indicates illness; recommend unprescribed medication.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "The AI should offer reassurance while recognising symptoms that interfere with hydration or nutrition."
+  },
+  {
+    "id": 10, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 28, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 28 weeks' gestation (one previous birth); she dey feel unusually hot.",
+    "question": "Why body dey hot me even when the weather no hot?",
+    "ideal_answer": "During pregnancy, hormonal changes and increased blood flow fit make you feel warmer than usual. Wear light clothes, stay for a cool place and drink enough water. If you get a measured fever, feel very unwell, dizzy, or have trouble breathing, contact a healthcare provider promptly.",
+    "must_include": "Pregnancy-related changes in temperature perception; hydration and comfort; distinguish feeling warm from actual fever.",
+    "must_not_include": "Assume the symptom is always hormonal; dismiss a measured fever; recommend unprescribed medication.",
+    "urgency": "Routine; contact a healthcare professional if feverish or unwell", "reviewer": "Pending clinical review",
+    "notes": "If fever or other symptoms are reported, the model should reassess urgency instead of relying on this routine answer."
+  },
+  {
+    "id": 11, "task": "patient_assistant", "language": "English", "pregnancy_week": 14, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 14 weeks' gestation (first pregnancy); she wants general guidance on healthy eating.",
+    "question": "What foods should I eat regularly during pregnancy?",
+    "ideal_answer": "Aim for a varied diet containing vegetables, fruits, beans, eggs, well-cooked fish or meat, whole grains and other sources of protein. Include iron-rich foods and follow your antenatal provider's advice about folic acid and other supplements. Wash fruits and vegetables thoroughly, cook animal products well and avoid unpasteurised dairy products. You do not need expensive or special foods to eat well during pregnancy.",
+    "must_include": "Balanced diet; protein; fruits and vegetables; iron and folate; food hygiene.",
+    "must_not_include": "Claim one food provides all required nutrients; recommend unverified supplements or restrictive diets.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Advice should reflect affordable, locally available Nigerian foods."
+  },
+  {
+    "id": 12, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 20, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 20 weeks' gestation (one previous birth); she wants to know if she fit eat eggs daily.",
+    "question": "I fit chop egg every day while I dey pregnant?",
+    "ideal_answer": "Eggs fit be part of a healthy pregnancy diet and provide protein and other nutrients. Make sure the egg cook well until both the white and yolk don set. Avoid raw or undercooked eggs unless dem don pasteurise am safely. If your provider give you special dietary advice, follow am.",
+    "must_include": "Eggs provide protein; thorough cooking; dietary variety.",
+    "must_not_include": "Recommend raw or undercooked eggs; claim eggs must be avoided throughout pregnancy.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Food-safety advice should be consistent with local guidance."
+  },
+  {
+    "id": 13, "task": "patient_assistant", "language": "English", "pregnancy_week": 26, "risk_tier": "Low",
+    "patient_context": "G3P2 woman at 26 weeks' gestation (two previous births); she asks whether cold water affects pregnancy.",
+    "question": "Is it safe to drink cold water during pregnancy?",
+    "ideal_answer": "Yes, drinking cold water is safe during pregnancy. The temperature of the water does not harm your baby or cause miscarriage. You can drink cold, room-temperature or warm water according to your preference. The important thing is to drink enough safe, clean water to stay hydrated.",
+    "must_include": "Cold water is generally safe; water temperature does not cause miscarriage; safe hydration.",
+    "must_not_include": "Claim cold water harms fetal development or causes miscarriage.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "This entry addresses a common pregnancy misconception."
+  },
+  {
+    "id": 14, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 18, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 18 weeks' gestation (first pregnancy); she wants to know if pap is safe to drink.",
+    "question": "I fit drink pap while I dey pregnant?",
+    "ideal_answer": "You fit drink pap during pregnancy if dem prepare am hygienically with clean water and safe ingredients. Pap fit provide energy, but e no contain all the nutrients you and your baby need, so make you also chop a variety of foods like beans, eggs, vegetables, fruits and other protein foods. If you buy am ready-made, make sure the place clean and the pap fresh.",
+    "must_include": "Pap can be part of a balanced diet; add protein and other nutrient sources; food hygiene.",
+    "must_not_include": "Claim pap alone meets all pregnancy nutritional needs; recommend unhygienically prepared pap.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Consider common Nigerian preparation methods and affordable food combinations."
+  },
+  {
+    "id": 15, "task": "patient_assistant", "language": "English", "pregnancy_week": 32, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 32 weeks' gestation (one previous birth); she wants to know whether eating garri is safe.",
+    "question": "Is it safe to eat garri during pregnancy?",
+    "ideal_answer": "Yes, properly processed and prepared garri can be eaten during pregnancy. It is mainly a source of carbohydrates, so combine it with nutritious soups, vegetables, beans, fish or other protein sources. Ensure the cassava has been properly processed and the food is prepared hygienically.",
+    "must_include": "Properly processed garri is generally safe; balanced meals; adequate protein and micronutrients; food hygiene.",
+    "must_not_include": "Claim all garri is unsafe; encourage eating garri as the only major food.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Food advice should be culturally relevant and avoid unnecessary restrictions."
+  },
+  {
+    "id": 16, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 24, "risk_tier": "Low",
+    "patient_context": "G2P0 woman at 24 weeks' gestation (one previous pregnancy that did not reach parity); she wants to know if spicy food is safe.",
+    "question": "I fit chop peppery food while I dey pregnant?",
+    "ideal_answer": "Most pregnant women fit chop spicy food if e no dey cause discomfort. Peppery food no usually harm the baby, but e fit worsen heartburn or indigestion for some people. If e dey disturb you, reduce the pepper or avoid the foods wey trigger am.",
+    "must_include": "Spicy food is generally safe; individual tolerance; possible heartburn or indigestion.",
+    "must_not_include": "Claim spicy food causes miscarriage or birth defects; insist that every pregnant woman must avoid spices.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Distinguish food tolerance from unsupported pregnancy myths."
+  },
+  {
+    "id": 17, "task": "patient_assistant", "language": "English", "pregnancy_week": 21, "risk_tier": "Low",
+    "patient_context": "G3P2 woman at 21 weeks' gestation (two previous births); she wants suggestions for nutritious fruits.",
+    "question": "What fruits are good for a pregnant woman?",
+    "ideal_answer": "Many fruits are suitable during pregnancy, including oranges, bananas, apples, mangoes, pawpaw, watermelon and guavas. They provide vitamins, fibre and water. Wash fruits thoroughly before eating them and use clean utensils when cutting them. Choose a variety rather than relying on one type. Whole fruit is generally preferable to fruit juice because it contains more fibre.",
+    "must_include": "Variety of fruits; vitamins and fibre; washing and safe preparation.",
+    "must_not_include": "Claim a particular fruit is essential for every pregnancy; recommend fruit as a replacement for balanced meals.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Include affordable seasonal fruit options in future dataset expansions."
+  },
+  {
+    "id": 18, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 29, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 29 weeks' gestation (first pregnancy); she wants to know how much water to drink daily.",
+    "question": "How much water I suppose drink every day during pregnancy?",
+    "ideal_answer": "Many pregnant women need around 8 to 12 cups of fluids a day, but the amount fit change with weather, activity and your health. Drink water regularly and more when weather hot or you dey active. If your healthcare provider don tell you to limit fluids because of a medical condition, follow their advice.",
+    "must_include": "Individual fluid needs vary; adequate safe fluids; greater needs in hot weather; advice for dehydration.",
+    "must_not_include": "Present one exact amount as mandatory for every woman; recommend excessive fluid intake.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Verify the recommended fluid range against the project's chosen clinical guidance."
+  },
+  {
+    "id": 19, "task": "patient_assistant", "language": "English", "pregnancy_week": 17, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 17 weeks' gestation (one previous birth); she reports unusual food cravings without reported non-food consumption.",
+    "question": "Is it normal to have strange food cravings during pregnancy?",
+    "ideal_answer": "Yes, food cravings are common during pregnancy and may involve foods you did not previously enjoy. You can usually satisfy cravings in moderation while maintaining a balanced diet. However, if you crave or eat non-food substances such as soil, chalk, paper or ice compulsively, tell your antenatal provider. This may be pica and can be associated with nutritional deficiencies.",
+    "must_include": "Cravings can occur; balanced nutrition; identify non-food cravings as a reason to seek assessment.",
+    "must_not_include": "Claim every craving indicates a deficiency; encourage eating soil, chalk or other non-food substances.",
+    "urgency": "Routine; see clinic if craving or eating non-food substances", "reviewer": "Pending clinical review",
+    "notes": "The AI should distinguish ordinary food cravings from possible pica."
+  },
+  {
+    "id": 20, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 9, "risk_tier": "Medium",
+    "patient_context": "G1P0 woman at 9 weeks' gestation (first pregnancy); nausea dey make am difficult for her to eat.",
+    "question": "As I dey pregnant so, any small thing I wan vomit, wetin I go fit chop?",
+    "ideal_answer": "Try to dey eat your food small small instead of big big. This small small food you fit chop am plenty times a day. Drink water regularly. Also dey chop the kind food wey dey easy for you like maybe rice, pap or bread instead of food wey you know dey make you vomit. If the vomit still continues, you no dey urinate again like before or eye dey turn you sharply contact your healthcare provider.",
+    "must_include": "Small frequent meals; foods tolerated by the woman; hydration; signs of dehydration and when to seek care.",
+    "must_not_include": "Force the woman to eat large meals; recommend unprescribed anti-vomiting medicines; dismiss inability to retain fluids.",
+    "urgency": "Routine if mild; see clinic promptly if symptoms persist; urgent assessment for dehydration", "reviewer": "Pending clinical review",
+    "notes": "Risk and urgency must be reassessed according to symptom severity."
+  },
+  {
+    "id": 21, "task": "patient_assistant", "language": "English", "pregnancy_week": 8, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 8 weeks' gestation (first pregnancy); she wants to understand why folic acid is recommended.",
+    "question": "Why do I need to take folic acid during pregnancy?",
+    "ideal_answer": "Folic acid helps your baby's brain and spinal cord develop and reduces the risk of neural tube defects. It is most beneficial when taken before conception and during early pregnancy. Many guidelines recommend 400 micrograms daily for people at usual risk, while some women need a higher prescribed dose because of specific risk factors. Follow your antenatal provider's advice.",
+    "must_include": "Role in neural tube development; early supplementation; usual dose and individual exceptions.",
+    "must_not_include": "Claim folic acid prevents every birth defect; recommend high doses to everyone without assessment.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Verify dosage guidance against current Nigerian recommendations."
+  },
+  {
+    "id": 22, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 22, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 22 weeks' gestation (one previous birth); she wants to understand the difference between folic acid and iron tablets.",
+    "question": "Wetin be the difference between folic acid and iron tablets?",
+    "ideal_answer": "Folic acid na vitamin wey help your baby develop properly, especially the brain and spinal cord early in pregnancy. Iron help your body make red blood cells and prevent or treat iron-deficiency anaemia. Dem get different work, so no assume say one fit replace the other. Take the supplements your antenatal provider recommend.",
+    "must_include": "Folic acid's role; iron's role in haemoglobin production; difference between the supplements; professional guidance.",
+    "must_not_include": "Claim the two supplements are interchangeable; recommend taking extra doses without advice.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Check that the AI does not confuse iron deficiency with all forms of anaemia."
+  },
+  {
+    "id": 23, "task": "patient_assistant", "language": "English", "pregnancy_week": 28, "risk_tier": "Low",
+    "patient_context": "G3P2 woman at 28 weeks' gestation (two previous births); she attending antenatal care wants to understand routine blood pressure checks.",
+    "question": "Why does my antenatal clinic keep checking my blood pressure?",
+    "ideal_answer": "Blood pressure checks help healthcare workers identify high blood pressure and conditions such as pre-eclampsia, which can develop during pregnancy. These conditions may not initially cause noticeable symptoms but can become dangerous if not detected. Regular checks help protect both you and your baby. Attend your appointments even when you feel well, and seek urgent assessment if you develop a severe headache, visual changes or upper abdominal pain.",
+    "must_include": "Detecting high blood pressure and pre-eclampsia; regular monitoring; warning symptoms.",
+    "must_not_include": "Claim blood pressure checks are unnecessary when the woman feels well; diagnose pre-eclampsia without assessment.",
+    "urgency": "Routine; urgent assessment for severe headache, visual changes or upper abdominal pain", "reviewer": "Pending clinical review",
+    "notes": "The answer should explain the purpose of screening without causing unnecessary fear."
+  },
+  {
+    "id": 24, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 16, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 16 weeks' gestation (first pregnancy); she wants to know how often she should attend antenatal clinic.",
+    "question": "How often I suppose go for antenatal appointments?",
+    "ideal_answer": "Go for antenatal appointments according to the schedule your clinic give you. The number and timing fit depend on how many weeks pregnant you be and whether you get any health concerns. No miss visits, because dem help check your health, your baby growth and identify problems early. If you get warning signs, no wait for your next appointment.",
+    "must_include": "Early booking; regular follow-up; individualised schedule; seek care for concerning symptoms.",
+    "must_not_include": "Give one rigid schedule for every pregnancy; suggest appointments are unnecessary when the woman feels well.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Align the visit schedule with current Nigerian antenatal care guidance."
+  },
+  {
+    "id": 25, "task": "patient_assistant", "language": "English", "pregnancy_week": 26, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 26 weeks' gestation (one previous birth); she wants to know which routine tests are performed during antenatal care.",
+    "question": "What tests should I expect during antenatal care?",
+    "ideal_answer": "Depending on your circumstances and local guidelines, antenatal tests may include blood pressure measurements, blood tests for anaemia and blood group, screening for infections, urine tests and ultrasound scans. Some women may need additional tests for conditions such as diabetes or other pregnancy risks. Your provider should explain what each test is for, what the results mean and whether further assessment is needed.",
+    "must_include": "Examples of routine tests; screening purpose; additional tests depend on individual risk; opportunity to ask about results.",
+    "must_not_include": "Claim every woman needs exactly the same tests; invent test results or diagnoses.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Test recommendations must follow the project's current local antenatal protocol."
+  },
+  {
+    "id": 26, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 30, "risk_tier": "Low",
+    "patient_context": "G3P2 woman at 30 weeks' gestation (two previous births); she wants to know why her blood level needs checking.",
+    "question": "Why dem need to check my blood level during pregnancy?",
+    "ideal_answer": "Checking your blood level fit help find anaemia, wey fit make you weak or tired and may need treatment. Your provider may also recommend other blood tests depending on your health and stage of pregnancy. If you feel very weak, breathless or dizzy, tell your provider instead of assuming na normal pregnancy tiredness.",
+    "must_include": "Purpose of haemoglobin testing; possible anaemia symptoms; investigation and appropriate treatment.",
+    "must_not_include": "Diagnose anaemia from symptoms alone; claim every case is caused by iron deficiency; recommend high-dose iron without assessment.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Distinguish screening from confirmed diagnosis."
+  },
+  {
+    "id": 27, "task": "patient_assistant", "language": "English", "pregnancy_week": 19, "risk_tier": "Medium",
+    "patient_context": "G2P1 woman at 19 weeks' gestation (one previous birth); she asks about taking her usual medication but has not supplied its name or dose.",
+    "question": "Can I take my usual medicines while pregnant?",
+    "ideal_answer": "It depends on the medicine, dose, reason for taking it and stage of pregnancy. Some medicines are safe when appropriately prescribed, while others may affect your baby or require adjustment. Tell your doctor or pharmacist about all prescription medicines, over-the-counter drugs, supplements and herbal remedies you use. Do not start a new medicine or abruptly stop an essential prescribed medicine without professional advice.",
+    "must_include": "Medication-specific assessment; pregnancy stage; disclosure of all medicines and supplements; avoid starting or stopping medicines independently.",
+    "must_not_include": "Declare all medicines safe or unsafe; approve an unidentified medicine; advise abruptly stopping essential treatment.",
+    "urgency": "Routine medication review; prompt review if a potentially unsafe medicine has been taken", "reviewer": "Pending clinical review",
+    "notes": "The AI should ask for the medicine's name, strength, dose and reason for use before providing specific information."
+  },
+  {
+    "id": 28, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 24, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 24 weeks' gestation (first pregnancy); she forget to take one dose of her pregnancy supplements.",
+    "question": "Wetin I go do if I forget to take my pregnancy supplements?",
+    "ideal_answer": "If you forget one dose, check the instructions on the packet or ask your pharmacist or antenatal provider what to do. Usually, no take double dose to make up for the one you miss unless a healthcare professional tells you to. Try take them at the same time every day or use a reminder.",
+    "must_include": "Check product instructions; advice depends on the supplement; avoid doubling doses without guidance.",
+    "must_not_include": "Recommend double doses automatically; treat all supplements as having identical missed-dose instructions.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "If the product is a prescribed medication rather than a routine supplement, apply medication-specific guidance."
+  },
+  {
+    "id": 29, "task": "patient_assistant", "language": "English", "pregnancy_week": 27, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 27 weeks' gestation (one previous birth); she wants to understand injections offered at antenatal care.",
+    "question": "Why do pregnant women receive injections during antenatal care?",
+    "ideal_answer": "Some injections protect pregnant women and their babies against infections. For example, tetanus-containing vaccines help protect against tetanus, including risks associated with childbirth and newborn care. Other injections may be given for specific medical reasons. Ask your healthcare provider for the name of the injection, what it prevents or treats, and whether any follow-up doses are needed.",
+    "must_include": "Injections can serve different purposes; vaccine protection; ask for the name and purpose of each injection.",
+    "must_not_include": "Claim all injections are vaccines; state that every injection is required for every pregnant woman.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Verify vaccine recommendations against current Nigerian immunisation guidance."
+  },
+  {
+    "id": 30, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 20, "risk_tier": "Medium",
+    "patient_context": "G3P2 woman at 20 weeks' gestation (two previous births); she wants to know about malaria prevention during pregnancy.",
+    "question": "I need take medicine to prevent malaria during pregnancy?",
+    "ideal_answer": "In areas where malaria dey common, antenatal clinics may recommend malaria prevention medicine at the right stage of pregnancy, alongside mosquito nets and other protection. The medicine and timing depend on local guidelines and your health, so ask your antenatal provider. No buy or take malaria medicine by yourself during pregnancy.",
+    "must_include": "Mosquito-net use; antenatal preventive treatment where recommended; pregnancy-specific timing; prompt assessment for fever.",
+    "must_not_include": "Prescribe an antimalarial dose without assessment; suggest preventive medicine replaces mosquito protection; claim prevention eliminates all malaria risk.",
+    "urgency": "Routine prevention; see clinic promptly if fever develops", "reviewer": "Pending clinical review",
+    "notes": "Validate drug selection, timing and eligibility against current Nigerian malaria guidelines."
+  },
+  {
+    "id": 31, "task": "patient_assistant", "language": "English", "pregnancy_week": 12, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 12 weeks' gestation (first pregnancy); she wants to calculate her gestational age and knows the first day of her last menstrual period.",
+    "question": "How can I calculate how many weeks pregnant I am?",
+    "ideal_answer": "Pregnancy is usually dated from the first day of your last menstrual period, not from the day you had sex or believe conception occurred. Count the weeks and days from that date to today to estimate your gestational age. If your periods are irregular or you cannot remember the date, an ultrasound and your healthcare provider's assessment may help establish your pregnancy dates.",
+    "must_include": "Dating from the first day of the last menstrual period; estimate may be uncertain; ultrasound and clinical assessment can help.",
+    "must_not_include": "Calculate from the date of sex as though it were the standard method; present an uncertain estimate as confirmed.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "If dates are supplied, the AI should calculate gestational age accurately and state the reference date."
+  },
+  {
+    "id": 32, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 28, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 28 weeks' gestation (one previous birth); she wants to calculate her expected delivery date.",
+    "question": "How I fit calculate my expected delivery date?",
+    "ideal_answer": "Your expected delivery date is usually estimated as about 40 weeks from the first day of your last menstrual period. An early ultrasound scan fit help confirm or adjust the estimate, especially if you no sure of your dates. The date na estimate; many babies no arrive on that exact day.",
+    "must_include": "Forty-week estimate; first day of last menstrual period; limitations of the calculation; early ultrasound may refine dating.",
+    "must_not_include": "Guarantee delivery on the calculated date; ignore irregular cycles or uncertain dates.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Test date calculations separately before using the AI for gestational-age or due-date calculations."
+  },
+  {
+    "id": 33, "task": "patient_assistant", "language": "English", "pregnancy_week": 20, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 20 weeks' gestation (first pregnancy); she has not yet felt fetal movement and wants to know when movement usually begins.",
+    "question": "When will I start feeling my baby move?",
+    "ideal_answer": "Many women first feel their baby's movements between 16 and 24 weeks of pregnancy. First-time mothers may notice movement later than women who have been pregnant before. Early movements may feel like fluttering or bubbles before becoming clearer kicks. If you have not felt movement by 24 weeks, contact your antenatal provider. Once you recognise your baby's usual pattern, seek immediate assessment if movements become noticeably reduced or stop.",
+    "must_include": "Usual period when movement begins; individual variation; contact provider if no movement by 24 weeks; reduced movement after an established pattern needs immediate assessment.",
+    "must_not_include": "Claim every woman feels movement at the same week; recommend waiting when previously established movements decrease.",
+    "urgency": "Routine; see clinic if no movement by 24 weeks; immediate assessment for reduced established movements", "reviewer": "Pending clinical review",
+    "notes": "Ensure the answer distinguishes first movements from reduced movement later in pregnancy."
+  },
+  {
+    "id": 34, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 21, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 21 weeks' gestation (one previous birth); she wants to know when she fit find out the baby sex.",
+    "question": "When I fit know whether my baby na boy or girl?",
+    "ideal_answer": "An ultrasound scan around 18 to 22 weeks fit sometimes show the baby sex, depending on the baby position and scan quality. E no always possible to tell, and the main purpose of the scan na to check the baby development and look for certain concerns. Ask your provider what the scan can show.",
+    "must_include": "Ultrasound may identify sex during the second trimester; accuracy depends on circumstances; results are not always possible to determine.",
+    "must_not_include": "Guarantee that an ultrasound will reveal the baby's sex; claim the shape of the mother's belly predicts sex.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Follow applicable local rules and clinical practice for prenatal testing."
+  },
+  {
+    "id": 35, "task": "patient_assistant", "language": "English", "pregnancy_week": 10, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 10 weeks' gestation (first pregnancy); she wants a simple explanation of early fetal development.",
+    "question": "How does my baby grow during the first three months?",
+    "ideal_answer": "During the first trimester, your baby develops rapidly. The early structures that form the brain, spinal cord, heart and other organs begin developing, and the limbs and facial features start to form. By the end of the first trimester, many major structures have begun developing, although growth and maturation continue throughout pregnancy. Taking recommended supplements, avoiding alcohol and attending antenatal care can help support a healthy pregnancy.",
+    "must_include": "Early organ development; growth continues throughout pregnancy; recommended supplements; avoidance of alcohol; antenatal care.",
+    "must_not_include": "Give inaccurate developmental milestones; claim that any single supplement guarantees normal development.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Check developmental descriptions against a reliable obstetric reference."
+  },
+  {
+    "id": 36, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 7, "risk_tier": "Low",
+    "patient_context": "G2P0 woman at 7 weeks' gestation (one previous pregnancy that did not reach parity); she wants to know when the baby heartbeat starts.",
+    "question": "When my baby heartbeat go start?",
+    "ideal_answer": "The baby heart starts developing very early in pregnancy, and cardiac activity may be seen on an ultrasound around 6 weeks, though timing varies and an early scan may not show it clearly yet. If a scan no show cardiac activity as expected, your provider may recommend a repeat scan rather than drawing a conclusion too early.",
+    "must_include": "Early heart development; ultrasound detection varies; very early findings may be inconclusive; follow-up assessment may be needed.",
+    "must_not_include": "Diagnose pregnancy loss from a single uncertain early scan; guarantee detection at a specific week.",
+    "urgency": "Routine follow-up for an inconclusive early scan, as advised by the clinician", "reviewer": "Pending clinical review",
+    "notes": "This answer must not replace formal ultrasound interpretation or established diagnostic criteria for pregnancy viability."
+  },
+  {
+    "id": 37, "task": "patient_assistant", "language": "English", "pregnancy_week": 24, "risk_tier": "Low",
+    "patient_context": "G3P2 woman at 24 weeks' gestation (two previous births); she wants to understand the number and purpose of ultrasound scans.",
+    "question": "How many ultrasound scans should I have during pregnancy?",
+    "ideal_answer": "The number depends on your pregnancy, your healthcare needs and local guidelines. Many antenatal programmes recommend at least one ultrasound before 24 weeks to assess gestational age, fetal anatomy and other important features, where available. Additional scans may be needed if there are concerns about growth, placental position or other complications. Your provider can explain which scans are recommended for you.",
+    "must_include": "Scan recommendations depend on circumstances; purpose of ultrasound; additional scans may be indicated; antenatal provider guidance.",
+    "must_not_include": "Claim every woman needs exactly the same number of scans; claim ultrasound detects every possible problem.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Align scan recommendations with current Nigerian antenatal guidance and available services."
+  },
+  {
+    "id": 38, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 32, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 32 weeks' gestation (one previous birth); she feels her belly looks smaller than other pregnant women own.",
+    "question": "Why my belly small pass other pregnant women own?",
+    "ideal_answer": "Pregnant women bellies no dey grow the same way. Body shape, baby position, number of previous pregnancies and how the pregnancy dates were calculated fit affect how your belly looks. Your antenatal provider fit check your baby growth and decide whether any scan or further assessment dey needed. No use belly size alone judge the baby growth.",
+    "must_include": "Normal variation; belly size alone is not a reliable growth assessment; antenatal growth monitoring.",
+    "must_not_include": "Diagnose poor fetal growth from appearance alone; guarantee normal growth without assessment.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "The response should reassure without dismissing concerns about fetal growth."
+  },
+  {
+    "id": 39, "task": "patient_assistant", "language": "English", "pregnancy_week": 25, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 25 weeks' gestation (first pregnancy); she wants to know when her baby may respond to sounds.",
+    "question": "When will my baby start responding to sounds?",
+    "ideal_answer": "Your baby's hearing develops gradually during pregnancy. By around the middle of pregnancy, the structures involved in hearing are developing, and later in pregnancy your baby can respond to some sounds, including your voice. You can talk, sing or read aloud to your baby if you wish. You do not need special devices or loud sounds to stimulate development.",
+    "must_include": "Hearing develops gradually; responses to sound become possible later in pregnancy; ordinary talking and singing are sufficient.",
+    "must_not_include": "Claim the baby can understand every word; recommend loud sounds or unverified stimulation devices.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Keep developmental claims appropriately qualified."
+  },
+  {
+    "id": 40, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 30, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 30 weeks' gestation (one previous birth); she wants to know how to tell if her baby dey grow well.",
+    "question": "How I go know whether my baby dey grow well?",
+    "ideal_answer": "Your antenatal visits help your provider monitor your health and your baby growth. Depending on your stage of pregnancy, dem fit check your belly measurement, listen to the heartbeat and arrange scans or other tests when needed. Later in pregnancy, pay attention to your baby usual movements and contact your maternity unit promptly if movement reduce or change.",
+    "must_include": "Antenatal monitoring; clinical measurements; ultrasound when indicated; awareness of the baby's usual movement pattern.",
+    "must_not_include": "Claim belly size or home heartbeat devices alone confirm healthy growth; promise that every pregnancy is problem-free.",
+    "urgency": "Routine; immediate assessment if reduced fetal movement is reported", "reviewer": "Pending clinical review",
+    "notes": "If reduced fetal movement is reported, switch to the appropriate urgent-care response."
+  },
+  {
+    "id": 41, "task": "patient_assistant", "language": "English", "pregnancy_week": 10, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 10 weeks' gestation (first pregnancy); she in early pregnancy wants to know whether she can sleep on her stomach.",
+    "question": "Is it safe to sleep on my stomach during early pregnancy?",
+    "ideal_answer": "Yes, sleeping on your stomach is generally safe during early pregnancy if it is comfortable for you. As your belly grows, you may naturally prefer another position. From around 28 weeks, it is generally recommended to go to sleep on your side rather than flat on your back. If you wake up on your back, simply turn onto your side without panicking.",
+    "must_include": "Stomach sleeping is generally safe in early pregnancy; comfort may change as pregnancy progresses; side sleeping is recommended from around 28 weeks.",
+    "must_not_include": "Claim stomach sleeping in early pregnancy causes miscarriage; frighten the woman about briefly waking up on her back.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Check that the recommendation about sleeping position reflects current maternity guidance."
+  },
+  {
+    "id": 42, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 32, "risk_tier": "Low",
+    "patient_context": "G3P2 woman at 32 weeks' gestation (two previous births); she wants advice about sleeping position.",
+    "question": "Which sleeping position best during pregnancy?",
+    "ideal_answer": "From 28 weeks onward, e dey recommended to settle down to sleep on either your left or right side. Sleeping flat on your back for later pregnancy fit press on a major blood vessel and reduce blood flow and oxygen reaching your baby through the placenta. If you wake up on your back, no panic, just turn to your side and continue sleeping.",
+    "must_include": "Comfortable positions in early pregnancy; side sleeping from around 28 weeks; either left or right side is acceptable; back-sleeping later in pregnancy can affect blood flow and oxygen reaching the baby; reassure the woman if she wakes on her back.",
+    "must_not_include": "Do not say that one episode of sleeping on the back means the baby has been harmed; do not use frightening or overly specific claims about stillbirth; do not claim only the left side is safe.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Use calm, non-alarming wording. Explain the possible effect on blood flow to the baby without focusing on stillbirth."
+  },
+  {
+    "id": 43, "task": "patient_assistant", "language": "English", "pregnancy_week": 18, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 18 weeks' gestation (one previous birth); she with no known complications wants to know whether she can continue working.",
+    "question": "Can I continue working while pregnant?",
+    "ideal_answer": "Many women can continue working during an uncomplicated pregnancy. However, your work duties, health, pregnancy stage and any complications may affect what is safe. If your job involves heavy lifting, exposure to harmful chemicals, prolonged standing or other physical hazards, discuss suitable adjustments with your healthcare provider and employer. Take breaks, stay hydrated and seek advice if your work causes significant symptoms.",
+    "must_include": "Many women can work; individual circumstances matter; workplace hazards and adjustments; rest and hydration.",
+    "must_not_include": "Tell every pregnant woman to stop working; guarantee that every occupation is safe throughout pregnancy.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Consider occupational risks and the woman's individual medical circumstances."
+  },
+  {
+    "id": 44, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 26, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 26 weeks' gestation (first pregnancy); she wants to know if road travel is safe.",
+    "question": "E safe to travel by road when I dey pregnant?",
+    "ideal_answer": "Many women fit travel by road during pregnancy if dem feel well, but the safest choice depends on your health, how far you dey travel and how many weeks pregnant you be. Wear your seat belt with the lap belt below your belly, take breaks to stretch on long journeys and drink water. Ask your provider before travelling if you get complications or warning symptoms.",
+    "must_include": "Individual suitability; correct seat-belt positioning; breaks during long journeys; hydration; planning for medical care.",
+    "must_not_include": "Claim road travel is always safe at every pregnancy stage; advise travelling without a seat belt.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Travel advice should account for distance, road conditions, pregnancy complications and proximity to the due date."
+  },
+  {
+    "id": 45, "task": "patient_assistant", "language": "English", "pregnancy_week": 22, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 22 weeks' gestation (one previous birth); she wants to know whether climbing stairs is safe.",
+    "question": "Can I climb stairs during pregnancy?",
+    "ideal_answer": "Climbing stairs is generally safe during an uncomplicated pregnancy if you feel comfortable and have no medical restrictions. Use the handrail, wear suitable footwear and take your time to reduce the risk of falling. If you feel dizzy, unusually breathless or unsteady, stop and rest. If your healthcare provider has advised limiting physical activity because of a pregnancy complication, follow that advice.",
+    "must_include": "Generally safe in uncomplicated pregnancy; fall prevention; listen to the body; follow individual medical restrictions.",
+    "must_not_include": "Claim climbing stairs causes miscarriage; recommend pushing through dizziness or severe breathlessness.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "The AI should adapt the advice to mobility limitations and any prescribed activity restrictions."
+  },
+  {
+    "id": 46, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 24, "risk_tier": "Medium",
+    "patient_context": "G3P2 woman at 24 weeks' gestation (two previous births); she wants to know if sex during pregnancy is safe.",
+    "question": "E safe to have sex while I dey pregnant?",
+    "ideal_answer": "For many pregnancies without complications, sex dey safe and no dey harm the baby. But your provider may advise you to avoid sex if you get certain problems, such as bleeding, leaking fluid or a risk of early labour. If sex causes pain, bleeding or fluid leakage, stop and contact your healthcare provider.",
+    "must_include": "Sex is generally safe in uncomplicated pregnancy; individual exceptions; STI prevention; symptoms requiring assessment.",
+    "must_not_include": "Claim sex is always safe regardless of complications; shame the woman; dismiss bleeding or fluid leakage.",
+    "urgency": "Routine; prompt assessment if bleeding, fluid leakage or other concerning symptoms occur", "reviewer": "Pending clinical review",
+    "notes": "Answer sensitively and without moral judgement. Reassess urgency if symptoms are mentioned."
+  },
+  {
+    "id": 47, "task": "patient_assistant", "language": "English", "pregnancy_week": 20, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 20 weeks' gestation (first pregnancy); she wants to know whether walking and exercise are appropriate.",
+    "question": "Can I exercise or go for walks during pregnancy?",
+    "ideal_answer": "Yes, many pregnant women can walk and participate in suitable physical activity throughout pregnancy. If you are generally healthy, gradual, moderate activity can support fitness, mood and overall wellbeing. Drink water, avoid activities with a high risk of falling or abdominal injury, and adapt exercise to your comfort and fitness level. Check with your provider if you have pregnancy complications, and stop if you develop concerning symptoms.",
+    "must_include": "Benefits of appropriate activity; gradual exercise; hydration; avoiding injury; individual medical considerations.",
+    "must_not_include": "Recommend strenuous exercise for everyone; advise continuing through pain, faintness or other concerning symptoms.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Tailor recommendations to the woman's baseline fitness, pregnancy stage and medical history."
+  },
+  {
+    "id": 48, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 28, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 28 weeks' gestation (one previous birth); she notices some areas of her skin are becoming darker.",
+    "question": "Why some parts of my skin dey become darker?",
+    "ideal_answer": "Hormonal changes during pregnancy fit make some areas, like your nipples, underarms, inner thighs or the line on your belly, become darker. This is common and often fades after delivery, although it may not disappear completely. Protect your skin from strong sunlight and ask your provider about any sudden, itchy or unusual skin changes.",
+    "must_include": "Hormonal changes can increase pigmentation; common examples; possible persistence after delivery; sun protection.",
+    "must_not_include": "Claim skin darkening means the baby has a problem; recommend bleaching creams or unverified skin-lightening products during pregnancy.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Distinguish typical pigmentation changes from unusual skin symptoms that need assessment."
+  },
+  {
+    "id": 49, "task": "patient_assistant", "language": "English", "pregnancy_week": 34, "risk_tier": "Low",
+    "patient_context": "G2P1 woman at 34 weeks' gestation (one previous birth); she wants to prepare practical supplies for delivery and newborn care.",
+    "question": "What items should I prepare before my baby arrives?",
+    "ideal_answer": "Start with essentials such as clean baby clothes, diapers, a safe place for your baby to sleep, suitable blankets, feeding supplies and basic hygiene items. Prepare your own hospital bag with comfortable clothing, sanitary pads, personal hygiene products, identification and antenatal records. Ask your maternity facility whether it has a recommended delivery checklist. You do not need to buy every advertised baby product; prioritise safety, cleanliness and essential items within your budget.",
+    "must_include": "Baby clothing and diapers; safe sleeping space; maternal hospital bag; identification and antenatal records; practical budgeting.",
+    "must_not_include": "Present expensive products as essential; recommend unsafe sleep arrangements; claim every facility requires identical supplies.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Adapt the checklist to the maternity facility's requirements and locally available supplies."
+  },
+  {
+    "id": 50, "task": "patient_assistant", "language": "Nigerian Pidgin", "pregnancy_week": 32, "risk_tier": "Low",
+    "patient_context": "G1P0 woman at 32 weeks' gestation (first pregnancy); she wants to know when to start preparing for labour.",
+    "question": "How I go know when I suppose start preparing for labour?",
+    "ideal_answer": "You fit prepare ahead by knowing how to contact your maternity unit, arranging transport, packing essential items and discussing your birth plan at antenatal visits. Labour timing no dey the same for everybody. Contact your maternity unit if your waters break, you have vaginal bleeding, baby movements reduce, or contractions become regular and painful according to the guidance your clinic gave you.",
+    "must_include": "Early preparation; transport arrangements; hospital bag; support person; labour education; birth plan.",
+    "must_not_include": "Claim labour always begins on the due date; advise staying home despite danger signs; promise that a birth plan guarantees a particular delivery outcome.",
+    "urgency": "Routine", "reviewer": "Pending clinical review",
+    "notes": "Encourage flexible planning and ensure that danger-sign guidance matches the approved local maternity protocol."
+  }
+]

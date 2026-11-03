@@ -9,7 +9,8 @@
     "start": "tsx src/index.ts",
     "test": "vitest run",
     "db:seed": "tsx prisma/seed.ts",
-    "education:generate": "tsx scripts/generate-education-content.ts"
+    "education:generate": "tsx scripts/generate-education-content.ts",
+    "ai:eval": "tsx scripts/ai-eval.ts"
   },
   "keywords": [],
   "author": "",

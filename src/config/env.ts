@@ -22,6 +22,8 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   LOG_LEVEL: z.string().default('info'),
   GROQ_API_KEY: z.string().default(''),
+  /// Groq model for all AI features. Groq retires models over time (llama-3.1-8b-instant is gone), so it's a setting.
+  AI_MODEL: z.string().default('openai/gpt-oss-120b'),
   CRON_SECRET: z.string().default('my-super-secret-cron-key'),
   /// Clinic WhatsApp number for patient support (digits with country code, no +).
   /// Live number: +234 803 402 7044
