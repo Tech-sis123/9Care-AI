@@ -8,3 +8,6 @@ reports
 
 # Database exports (contain patient data)
 *.csv
+
+# Internal notes for the clinic team
+docs/whatsapp-bot-server-upgrade.txt
