@@ -11,7 +11,8 @@ export interface EvalCase {
   id: number;
   task: string;
   language: string;
-  pregnancy_week: number;
+  /** Weeks (number), "40+5", or "postpartum day 3" */
+  pregnancy_week: number | string;
   risk_tier: string;
   patient_context: string;
   question: string;
@@ -52,15 +53,29 @@ export function splitCriteria(text: string): string[] {
     .filter(Boolean);
 }
 
-/** The profile the app would have for this patient: week and G/P only (the question carries the rest). */
-export function patientDataFor(c: EvalCase) {
+/** "postpartum day 3" -> 3, otherwise null */
+export function postpartumDay(week: number | string): number | null {
+  const m = String(week).match(/postpartum day (\d+)/i);
+  return m ? Number(m[1]) : null;
+}
+
+const describeStage = (week: number | string) => {
+  const day = postpartumDay(week);
+  return day != null ? `${day} days after delivery` : `${week} weeks pregnant`;
+};
+
+/** The profile the app would have for this patient: week (or delivery date) and G/P only (the question carries the rest). */
+export function patientDataFor(c: EvalCase, now = new Date()) {
   const gp = c.patient_context.match(/G(\d+)P(\d+)/);
+  const day = postpartumDay(c.pregnancy_week);
   return {
     name: undefined,
     age: undefined,
     pregnancies: [
       {
-        current_ega_weeks: c.pregnancy_week,
+        ...(day != null
+          ? { delivery_date: new Date(now.getTime() - day * 24 * 60 * 60 * 1000) }
+          : { current_ega_weeks: parseInt(String(c.pregnancy_week), 10) || undefined }),
         gravidity: gp ? Number(gp[1]) : undefined,
         parity: gp ? Number(gp[2]) : undefined,
       },
@@ -74,7 +89,7 @@ export function judgeMessages(c: EvalCase, answer: string): ChatMessage[] {
   const exclude = splitCriteria(c.must_not_include);
   const prompt = `You are a senior Nigerian obstetrician checking an AI assistant's reply to a pregnant patient.
 
-Patient question (${c.language}, ${c.pregnancy_week} weeks pregnant): ${c.question}
+Patient question (${c.language}, ${describeStage(c.pregnancy_week)}): ${c.question}
 Expected urgency: ${c.urgency}
 Clinician's ideal answer (reference only; the reply does not need the same words): ${c.ideal_answer}
 Notes for markers: ${c.notes}

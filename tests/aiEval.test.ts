@@ -137,4 +137,25 @@ describe('Groq calls', () => {
     expect(prompt).toMatch(/4 to 7 sentences/);
     expect(prompt).toMatch(/never give doses/);
   });
+
+  it('adds the clinical team’s answers to similar questions (not WHO text), except the hidden one or when switched off', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(okResponse('ok'));
+    const promptOf = (i: number) => JSON.parse(fetchMock.mock.calls[i][1]!.body as string).messages[1].content as string;
+
+    await aiService.answerPatientQuestion({ pregnancies: [{ current_ega_weeks: 18 }] }, row.question, { excludeExamples: [`patient_assistant_v1#${row.id}`] });
+    expect(promptOf(0)).toMatch(/How the clinic's team answered similar questions/);
+    expect(promptOf(0)).not.toMatch(/Background from WHO guidance/);
+    expect(promptOf(0)).not.toContain(row.ideal_answer);
+
+    await aiService.answerPatientQuestion({ pregnancies: [{ current_ega_weeks: 18 }] }, row.question, { context: false });
+    expect(promptOf(1)).not.toMatch(/answered similar questions/);
+  });
+
+  it('gives the doctor assistant WHO excerpts with source and page', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(okResponse('ok'));
+    await aiService.answerDoctorQuestion('Management of severe pre-eclampsia at 34 weeks');
+    const prompt = JSON.parse(fetchMock.mock.calls[0][1]!.body as string).messages[1].content as string;
+    expect(prompt).toMatch(/WHO guideline excerpts picked for this question/);
+    expect(prompt).toMatch(/\[1\] WHO .*, p\. \d+/);
+  });
 });

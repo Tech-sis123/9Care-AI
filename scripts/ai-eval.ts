@@ -4,8 +4,13 @@
  *   npm run ai:eval -- --label baseline
  *   npm run ai:eval -- --model openai/gpt-oss-20b --ids 1,5,20
  *
+ *   npm run ai:eval -- --data data/ai-eval/emergency_triage_v1.json --sample 20 --no-context
+ *
  * Options: --model (default AI_MODEL), --judge (default openai/gpt-oss-120b),
- * --data (default data/ai-eval/patient_assistant_v1.json), --ids, --limit, --label.
+ * --data (default data/ai-eval/patient_assistant_v1.json), --ids, --limit,
+ * --sample N (every Nth-spaced question, for a spread across the set), --label,
+ * --no-context (without WHO excerpts and example answers, to compare).
+ * The question being tested is never shown to the assistant as an example answer.
  * Reports go to reports/ai-eval/ (git-ignored).
  */
 import fs from 'fs';
@@ -30,12 +35,24 @@ async function main() {
   let cases = JSON.parse(fs.readFileSync(dataPath, 'utf8')) as import('../src/services/aiEval').EvalCase[];
   if (ids) cases = cases.filter((c) => ids.includes(c.id));
   if (arg('limit')) cases = cases.slice(0, Number(arg('limit')));
+  if (arg('sample')) {
+    const step = cases.length / Number(arg('sample'));
+    cases = Array.from({ length: Math.min(cases.length, Number(arg('sample'))) }, (_, i) => cases[Math.floor(i * step)]);
+  }
+  const context = !process.argv.includes('--no-context');
+  const set = path.basename(dataPath, '.json');
 
   const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16);
   const outDir = path.join('reports', 'ai-eval');
   fs.mkdirSync(outDir, { recursive: true });
   const base = path.join(outDir, `${stamp}-${label}`);
-  const meta = { label, model: env.AI_MODEL, judge, date: new Date().toISOString().slice(0, 16).replace('T', ' '), data: dataPath };
+  const meta = {
+    label,
+    model: `${env.AI_MODEL}${context ? ' + WHO excerpts and example answers' : ' (no reference material)'}`,
+    judge,
+    date: new Date().toISOString().slice(0, 16).replace('T', ' '),
+    data: dataPath,
+  };
   console.log(`Testing ${cases.length} questions | answers: ${meta.model} | marking: ${judge}`);
 
   const results: import('../src/services/aiEval').EvalResult[] = [];
@@ -49,7 +66,11 @@ async function main() {
       verdict: 'error',
     };
     try {
-      result.answer = await aiService.answerPatientQuestion(ev.patientDataFor(c), c.question, { retries: 8 });
+      result.answer = await aiService.answerPatientQuestion(ev.patientDataFor(c), c.question, {
+        retries: 8,
+        context,
+        excludeExamples: [`${set}#${c.id}`],
+      });
       if (/^I encountered an error|AI features are currently unavailable/.test(result.answer)) {
         throw new Error('The assistant returned its error message (check the server log / model name)');
       }

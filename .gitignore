@@ -11,3 +11,6 @@ reports
 
 # Internal notes for the clinic team
 docs/whatsapp-bot-server-upgrade.txt
+
+# Source spreadsheets for the AI (converted to data/ by npm run kb:build)
+docs/*.xlsx

@@ -2,6 +2,7 @@ import { env } from '../config/env';
 import { logger } from '../utils/logger';
 import { riskGuidelineText } from '../modules/risk/conditions';
 import { doctorGuidanceText, patientGuidanceText } from './clinicalGuidance';
+import { examplesFor, examplesPromptText, guidanceFor, guidancePromptText } from './knowledge';
 import { deliverySummary } from '../utils/delivery';
 
 /** Tells the model she has already delivered, so it answers about postpartum care, not pregnancy weeks. */
@@ -82,6 +83,40 @@ const PIDGIN_RE =
 
 export const looksLikePidgin = (text: string) => PIDGIN_RE.test(text);
 
+// Reference material per question (see knowledge.ts); sizes in tokens.
+// Patients only get documents marked for patients (none yet: the WHO ones are for doctors).
+const PATIENT_GUIDANCE_TOKENS = 700;
+const PATIENT_EXAMPLES = 2;
+const DOCTOR_GUIDANCE_TOKENS = 2000;
+
+export interface PatientAnswerOptions {
+  retries?: number;
+  /** false: answer without the WHO excerpts and example answers (to compare in tests) */
+  context?: boolean;
+  /** Example answers to leave out, e.g. the test question itself */
+  excludeExamples?: string[];
+}
+
+/** WHO excerpts and the clinical team's answers to similar questions, as prompt sections. */
+function patientReferenceText(question: string, language: string, opts: PatientAnswerOptions): string {
+  if (opts.context === false) return '';
+  const guidance = guidanceFor(question, { audience: 'patient', maxTokens: PATIENT_GUIDANCE_TOKENS });
+  const examples = examplesFor(question, { count: PATIENT_EXAMPLES, language, exclude: opts.excludeExamples });
+  logger.debug({ guidance: guidance.map((c) => c.id), examples: examples.map((e) => e.key) }, 'Patient question context');
+  const parts: string[] = [];
+  if (guidance.length) {
+    parts.push(
+      `Background from WHO guidance, picked for this question. It is written for health workers: use it to get the facts right, explain it in everyday words, and never pass on doses, treatments for her to give herself, or clinical procedures. Ignore it if it does not fit her question.\n${guidancePromptText(guidance)}`
+    );
+  }
+  if (examples.length) {
+    parts.push(
+      `How the clinic's team answered similar questions. Follow their tone, length and advice on when to seek care, but answer her own question and situation; do not copy them word for word.\n${examplesPromptText(examples)}`
+    );
+  }
+  return parts.length ? `\n${parts.join('\n\n')}\n` : '';
+}
+
 interface GenerateLessonParams {
   patientName: string;
   age: number;
@@ -145,7 +180,7 @@ Keep the total output under 250 words. Format with standard paragraphs.`;
   /**
    * Answers a question from a patient using their profile and medical context.
    */
-  async answerPatientQuestion(patientData: any, question: string, opts: { retries?: number } = {}): Promise<string> {
+  async answerPatientQuestion(patientData: any, question: string, opts: PatientAnswerOptions = {}): Promise<string> {
     if (!env.GROQ_API_KEY || env.GROQ_API_KEY === 'your_groq_api_key_here' || env.GROQ_API_KEY === '') {
       return "I'm sorry, my AI features are currently unavailable.";
     }
@@ -170,7 +205,7 @@ How to answer:
       }
 2. Keep it short, like a WhatsApp message: about 4 to 7 sentences in plain words. No headings or tables. Use a short list only when she asks for a list of things (for example foods or items to pack).
 3. Start with a direct answer, then say briefly why, then give practical tips she can use at home. Prefer affordable foods and options common in Nigeria (for example beans, eggs, fish, vegetables like ugu, garri with soup, pap, oranges, pawpaw, bananas).
-4. Say clearly when to see her clinic or go to the hospital, naming the warning signs that matter for this topic. If she describes a danger sign now (vaginal bleeding, severe headache, blurred vision, fits, severe belly pain, fluid leaking, baby moving less than usual, fever, fainting, or vomiting so much she cannot keep fluids down), tell her first to go to the hospital now.
+4. Say clearly when to see her clinic or go to the hospital, naming the warning signs that matter for this topic. If she describes a danger sign now (vaginal bleeding, severe headache, blurred vision, fits, severe belly pain, fluid leaking, baby moving less than usual, fever, fainting, a fall or blow to her belly, or vomiting so much she cannot keep fluids down), tell her first to go to the hospital now.
 5. Be calm and kind. Do not frighten her, and do not tell her something is normal when it might not be. Do not diagnose: say what it could be and that her clinic can check.
 6. Medicines: never give doses, prescribe, or tell her to start or stop a medicine, supplement or herbal mixture, and never suggest buying medicine by herself. If she asks about a medicine, ask for its name, strength and why she takes it, and tell her to check with her doctor or pharmacist.
 7. Gently correct common pregnancy myths and say what is actually true.
@@ -178,7 +213,8 @@ How to answer:
 9. The clinic treats these as high-risk pregnancy conditions. If she mentions having any of them (now or in a past pregnancy), gently encourage her to tell her doctor at her next antenatal visit, or sooner if she has symptoms, without labelling her as high risk:
 ${riskGuidelineText()}
 Evidence-based points you may share in simple words when relevant (never give doses or change her prescriptions; refer dose questions to her clinic):
-${patientGuidanceText()}`;
+${patientGuidanceText()}
+${patientReferenceText(question, looksLikePidgin(question) ? 'Nigerian Pidgin' : preferredLanguage, opts)}`;
 
       const text = await groqChat(
         [
@@ -221,6 +257,12 @@ When the patient has any of these, say which ones and factor them into your reco
 
       prompt += `\nPublished guidance to follow where relevant (prefer it over general knowledge and cite it by name):
 ${doctorGuidanceText()}\n`;
+
+      const excerpts = guidanceFor(question, { audience: 'doctor', maxTokens: DOCTOR_GUIDANCE_TOKENS });
+      if (excerpts.length) {
+        prompt += `\nWHO guideline excerpts picked for this question (use them where they apply and cite them as [n] with source and page; they may be incomplete, so say when the answer goes beyond them):
+${guidancePromptText(excerpts)}\n`;
+      }
 
       prompt += `\nDoctor's Question: "${question}"\n
 Provide an exceptionally insightful, comprehensive, and highly accurate medical analysis. Break down complex pathophysiology, outline evidence-based differential diagnoses, and provide actionable, step-by-step clinical management recommendations tailored precisely to this patient's risk profile. Always cite relevant clinical guidelines (e.g., ACOG, WHO) and highlight any potential red flags or edge cases the doctor should be aware of. Structure your response with clear headings and bullet points.`;
