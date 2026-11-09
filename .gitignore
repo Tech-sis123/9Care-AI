@@ -5,3 +5,6 @@ node_modules
 *.pdf
 .cache
 reports
+
+# Database exports (contain patient data)
+*.csv
