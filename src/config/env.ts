@@ -30,8 +30,9 @@ const envSchema = z.object({
   SUPPORT_WHATSAPP_NUMBER: z.string().default('2348034027044'),
   /// Temporary: lets patients regain access by matching their biodata. Set to 'false' to switch off.
   PATIENT_RECOVERY_ENABLED: z.string().default('true'),
-  /// 'true' lets patients see each other's lesson comments (first name only); default is private
-  EDUCATION_COMMENTS_PUBLIC: z.string().default('false'),
+  /// 'true': patients see each other's lesson comments (first name only) and the doctors' replies.
+  /// 'false': each patient sees only her own comments and the replies to them.
+  EDUCATION_COMMENTS_PUBLIC: z.string().default('true'),
   /// Auto-reply menu bot for messages sent to the clinic WhatsApp number. Set to 'false' to switch off.
   WHATSAPP_BOT_ENABLED: z.string().default('true'),
   /// Folder for the linked WhatsApp session (scanning the QR code once saves it here)

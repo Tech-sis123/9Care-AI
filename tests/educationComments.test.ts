@@ -26,7 +26,7 @@ describe('lesson comments', () => {
     vi.mocked(prisma.educationModule.findUnique).mockResolvedValue({ id: 'm1', status: 'published' } as any);
   });
 
-  it('by default shows a patient only her own comments, with doctor replies', async () => {
+  it('when switched to private, shows a patient only her own comments, with doctor replies', async () => {
     env.EDUCATION_COMMENTS_PUBLIC = 'false';
     vi.mocked(prisma.educationComment.findMany)
       .mockResolvedValueOnce([
@@ -46,21 +46,25 @@ describe('lesson comments', () => {
     expect(body.comments[0].replies[0].author).toEqual({ type: 'doctor', name: 'Dr Bello' });
   });
 
-  it('when made public, shows other patients by first name only', async () => {
+  it('is public by default: other patients by first name only, with doctor replies', async () => {
     env.EDUCATION_COMMENTS_PUBLIC = 'true';
     vi.mocked(prisma.educationComment.findMany)
       .mockResolvedValueOnce([
         { id: 'c2', body: 'Thanks', created_at: new Date(), patient_id: 'p2', patient: { name: 'Bisi Adeyemi' } },
       ] as any)
-      .mockResolvedValueOnce([]);
+      .mockResolvedValueOnce([
+        { id: 'r2', parent_id: 'c2', body: 'You are welcome', created_at: new Date(), hidden: false, doctor: { name: 'Dr Bello' } },
+      ] as any);
 
     const res = mockRes();
     await educationCommentsController.listForPatient({ params: { id: 'm1' }, user: { id: 'p1' } } as any, res, vi.fn());
 
     const where = vi.mocked(prisma.educationComment.findMany).mock.calls[0][0]!.where as any;
     expect(where.patient_id).toBeUndefined();
-    expect(res.json.mock.calls[0][0].comments[0].author.name).toBe('Bisi');
-    env.EDUCATION_COMMENTS_PUBLIC = 'false';
+    const body = res.json.mock.calls[0][0];
+    expect(body.public).toBe(true);
+    expect(body.comments[0].author.name).toBe('Bisi');
+    expect(body.comments[0].replies[0].body).toBe('You are welcome');
   });
 
   it('does not let doctors reply to a reply', async () => {

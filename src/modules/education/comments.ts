@@ -8,10 +8,9 @@ import { logger } from '../../utils/logger';
 /**
  * Comments on education lessons: patients ask, doctors reply (one level deep).
  *
- * Privacy: by default a patient only sees her own comments and the doctors'
- * replies to them, because comments can contain personal health details.
- * Set EDUCATION_COMMENTS_PUBLIC=true to let patients see each other's comments
- * (shown by first name only).
+ * Privacy: patients see each other's comments (first name only) and the doctors'
+ * replies. Set EDUCATION_COMMENTS_PUBLIC=false so each patient sees only her own
+ * comments and the replies to them.
  */
 
 const commentsArePublic = () => env.EDUCATION_COMMENTS_PUBLIC === 'true';

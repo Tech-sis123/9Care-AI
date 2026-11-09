@@ -186,7 +186,7 @@ const DoctorLessonComments = ({ moduleId, moduleTitle, onClose, onChanged }) => 
                       value={drafts[t.id] || ''}
                       onChange={(e) => setDrafts((d) => ({ ...d, [t.id]: e.target.value }))}
                       maxLength={2000}
-                      placeholder="Write a reply the patient will see…"
+                      placeholder="Write a reply (all patients can see it)…"
                       className="flex-1 px-3 py-2 text-sm border border-outline-variant rounded-xl bg-white focus:ring-2 focus:ring-primary outline-none resize-y"
                     />
                     <button
