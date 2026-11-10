@@ -44,7 +44,7 @@ const Landing = () => {
             </button>
             <a
               className="text-stone-600 hover:text-amber-800 font-body-md transition-all"
-              href="#"
+              href="#about"
             >
               About
             </a>
@@ -426,6 +426,60 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* About: who builds 9Care AI */}
+      <section id="about" className="py-24 bg-surface relative overflow-hidden scroll-mt-20">
+        <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-secondary-fixed opacity-20 rounded-full blur-3xl" />
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-5 gap-16 items-center relative">
+          <div className="lg:col-span-2">
+            <span className="inline-block py-1 px-4 bg-tertiary-fixed text-primary font-label-sm rounded-full mb-6">
+              THE PEOPLE BEHIND 9CARE
+            </span>
+            <h2 className="font-display-xl text-4xl md:text-display-xl text-primary mb-6 leading-tight">
+              Built with care, <br />
+              by AI Rising.
+            </h2>
+            <p className="font-body-lg text-on-surface-variant mb-8 max-w-md">
+              9Care AI is developed by <span className="font-bold text-primary">AI Rising</span>, a registered
+              technology enterprise led by Blessing Ikpia.
+            </p>
+            <div className="inline-flex items-center gap-3 bg-white rounded-full pl-2 pr-5 py-2 shadow-[0_2px_16px_rgba(158,110,0,0.08)] border border-amber-900/5">
+              <span className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center">
+                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  rocket_launch
+                </span>
+              </span>
+              <span className="font-label-sm text-sm uppercase tracking-widest text-primary">
+                A product of AI Rising
+              </span>
+            </div>
+          </div>
+
+          <div className="lg:col-span-3">
+            <p className="font-label-sm text-sm uppercase tracking-widest text-on-surface-variant mb-6">Leadership</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {[
+                { initials: 'BI', name: 'Blessing Ikpia', role: 'Chief Executive Officer', tint: 'bg-primary text-on-primary' },
+                { initials: 'VE', name: 'Vwakpor Efuetanu', role: 'Lead Innovator', tint: 'bg-tertiary-fixed text-primary' },
+                { icon: 'diversity_3', name: 'Clinical & technical team', role: 'The clinicians and engineers who shape every feature', tint: 'bg-secondary-fixed text-primary' },
+              ].map((person, i) => (
+                <div
+                  key={person.name}
+                  className={`bg-white p-8 rounded-xl shadow-[0_2px_16px_rgba(158,110,0,0.08)] border border-amber-900/5 hover:-translate-y-2 transition-all duration-300 ${
+                    i === 1 ? 'sm:mt-8' : ''
+                  }`}
+                >
+                  <div className={`w-16 h-16 rounded-full ${person.tint} flex items-center justify-center mb-6 font-headline-md text-xl`}>
+                    {person.icon ? <span className="material-symbols-outlined text-3xl">{person.icon}</span> : person.initials}
+                  </div>
+                  <h3 className="font-headline-md text-primary mb-1">{person.name}</h3>
+                  <p className="text-on-surface-variant font-body-md text-sm">{person.role}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-primary text-on-primary border-t border-amber-900/10">
         <div className="flex flex-col md:flex-row justify-between items-center w-full px-8 py-16 max-w-7xl mx-auto gap-8">
@@ -435,6 +489,9 @@ const Landing = () => {
             </div>
             <p className="font-serif text-sm tracking-wide opacity-80 max-w-sm">
               © 2026 9Care AI. Safe pregnancies, every time.
+            </p>
+            <p className="font-serif text-sm tracking-wide opacity-80 max-w-sm mt-2">
+              Developed by AI Rising, led by Blessing Ikpia.
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-8 font-serif text-sm tracking-wide">
@@ -452,7 +509,7 @@ const Landing = () => {
             </button>
             <a
               className="text-stone-400 hover:text-amber-300 underline underline-offset-4"
-              href="#"
+              href="#about"
             >
               About
             </a>
