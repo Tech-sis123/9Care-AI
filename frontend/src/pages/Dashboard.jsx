@@ -242,7 +242,8 @@ const PatientDashboard = () => {
     dashData?.intake_status ||
     getPatientData()?.intake_status ||
     'not_started';
-  const needsProfileCompletion = intakeStatus !== 'submitted';
+  // Stays on the dashboard (no dismiss) until she submits her health profile
+  const needsProfileCompletion = !loadingEga && intakeStatus !== 'submitted';
 
   const nextApptLabel = (() => {
     if (!nextAppt) return null;
@@ -304,6 +305,31 @@ const PatientDashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-[640px] mx-auto px-4 -mt-6 pb-32 space-y-6">
+        {needsProfileCompletion && (
+          <section
+            className="relative z-10 bg-secondary-container/60 border border-secondary/30 rounded-xl p-5 card-shadow flex gap-4 items-start"
+            aria-labelledby="complete-profile-title"
+          >
+            <span className="material-symbols-outlined text-secondary text-3xl shrink-0" aria-hidden>assignment_late</span>
+            <div className="flex-1 min-w-0">
+              <h2 id="complete-profile-title" className="font-headline-md text-body-lg text-on-surface">
+                {intakeStatus === 'in_progress' ? 'Finish your health profile' : 'Complete your health profile'}
+              </h2>
+              <p className="font-body-md text-sm text-on-surface-variant mt-1">
+                {intakeStatus === 'in_progress'
+                  ? 'You have started it. Pick up where you stopped so your doctors can check you and your baby properly.'
+                  : 'It helps your doctors spot any risk early and shows your pregnancy week. It takes about 5 minutes.'}
+              </p>
+              <button
+                onClick={() => navigate('/intake')}
+                className="mt-3 inline-flex items-center gap-1 px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:opacity-95"
+              >
+                {intakeStatus === 'in_progress' ? 'Continue health profile' : 'Complete health profile'}
+                <span className="material-symbols-outlined text-base" aria-hidden>arrow_forward</span>
+              </button>
+            </div>
+          </section>
+        )}
         {/* Pregnancy Progress Card */}
         <section className="bg-surface-container-lowest rounded-xl p-6 card-shadow border border-surface-container">
           {loadingEga ? (
@@ -337,14 +363,6 @@ const PatientDashboard = () => {
               <p className="font-body-md text-sm text-on-surface-variant">
                 We need your LMP date to calculate your week. Complete your health profile to see progress.
               </p>
-              {needsProfileCompletion && (
-                <button
-                  onClick={() => navigate('/intake')}
-                  className="mt-3 text-sm font-bold text-primary underline underline-offset-4"
-                >
-                  Complete health profile →
-                </button>
-              )}
             </div>
           ) : (
             <>
