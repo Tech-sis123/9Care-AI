@@ -297,7 +297,7 @@ export const authController = {
    */
   async patientRegisterEmail(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password, name, phone_number } = req.body;
+      const { email, password, name, phone_number, age } = req.body;
       const normalizedEmail = String(email).trim().toLowerCase();
 
       if (!isUsableEmail(normalizedEmail)) {
@@ -328,6 +328,7 @@ export const authController = {
           password_hash,
           phone_number: normalizedPhone || `email-${Date.now()}`,
           name: name || null,
+          age: age ?? null,
           intake_status: 'not_started',
           email_verified_at: null,
         },

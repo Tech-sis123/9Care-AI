@@ -68,4 +68,15 @@ describe('email sign-up with phone number', () => {
   it('rejects an invalid phone number', () => {
     expect(patientRegisterEmailSchema.safeParse({ email: 'a@b.co', password: 'secret1', phone_number: 'abc' }).success).toBe(false);
   });
+
+  it('saves the age worked out from her date of birth, and still signs up without one', async () => {
+    vi.mocked(prisma.patient.findFirst).mockResolvedValue(null);
+    const { res } = await register({ email: 'dupe@example.com', password: 'secret1', phone_number: '08012345678', age: 29 });
+    expect(vi.mocked(prisma.patient.create).mock.calls[0][0].data.age).toBe(29);
+    expect(res.json.mock.calls[0][0].patient.age).toBe(29);
+
+    await register({ email: 'eke@example.com', password: 'secret1' });
+    expect(vi.mocked(prisma.patient.create).mock.calls[1][0].data.age).toBeNull();
+    expect(patientRegisterEmailSchema.safeParse({ email: 'a@b.co', password: 'secret1', age: 5 }).success).toBe(false);
+  });
 });

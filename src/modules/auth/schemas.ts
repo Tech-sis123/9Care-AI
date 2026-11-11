@@ -51,6 +51,8 @@ export const patientRegisterEmailSchema = z.object({
     .nullable()
     .transform((val) => (val ? val : null))
     .refine((val) => val === null || /^\+?[0-9\s-]{10,18}$/.test(val), 'Enter a valid phone number'),
+  // From the date of birth on the sign-up form (only age is stored)
+  age: z.number().int().min(10).max(60).optional(),
 });
 
 export const doctorLoginSchema = z.object({

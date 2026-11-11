@@ -32,6 +32,75 @@ const parseDobToDate = (day, month, year) => {
   return date;
 };
 
+/** Whole years old today; undefined outside 10–60 (likely a typo). */
+const ageFromDob = (dob) => {
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age -= 1;
+  return age >= 10 && age <= 60 ? age : undefined;
+};
+
+/** Day / Month / Year boxes that jump to the next box when one is full. */
+const DateOfBirthField = ({ day, month, year, onDay, onMonth, onYear }) => {
+  const monthRef = useRef(null);
+  const yearRef = useRef(null);
+  const boxClass =
+    'w-full px-3 py-3 text-center border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm';
+  const digits = (value, max) => value.replace(/\D/g, '').slice(0, max);
+  return (
+    <div className="space-y-1">
+      <label className="font-label-sm text-on-surface-variant">DATE OF BIRTH</label>
+      <div className="grid grid-cols-3 gap-2">
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="Day (DD)"
+          aria-label="Day of birth"
+          maxLength={2}
+          value={day}
+          onChange={(e) => {
+            const val = digits(e.target.value, 2);
+            onDay(val);
+            if (val.length === 2) monthRef.current?.focus();
+          }}
+          className={boxClass}
+          required
+        />
+        <input
+          ref={monthRef}
+          type="text"
+          inputMode="numeric"
+          placeholder="Month (MM)"
+          aria-label="Month of birth"
+          maxLength={2}
+          value={month}
+          onChange={(e) => {
+            const val = digits(e.target.value, 2);
+            onMonth(val);
+            if (val.length === 2) yearRef.current?.focus();
+          }}
+          className={boxClass}
+          required
+        />
+        <input
+          ref={yearRef}
+          type="text"
+          inputMode="numeric"
+          placeholder="Year (YYYY)"
+          aria-label="Year of birth"
+          maxLength={4}
+          value={year}
+          onChange={(e) => onYear(digits(e.target.value, 4))}
+          className={boxClass}
+          required
+        />
+      </div>
+      <p className="text-[11px] text-stone-400">e.g. 15 / 08 / 1996</p>
+    </div>
+  );
+};
+
 const RegistrationFlow = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -62,8 +131,7 @@ const RegistrationFlow = () => {
   const [dobDay, setDobDay] = useState('');
   const [dobMonth, setDobMonth] = useState('');
   const [dobYear, setDobYear] = useState('');
-  const monthInputRef = useRef(null);
-  const yearInputRef = useRef(null);
+  const dobProps = { day: dobDay, month: dobMonth, year: dobYear, onDay: setDobDay, onMonth: setDobMonth, onYear: setDobYear };
 
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
@@ -190,14 +258,7 @@ const RegistrationFlow = () => {
     }
     setLoading(true);
     try {
-      let age;
-      if (dob && !isNaN(dob.getTime())) {
-        const today = new Date();
-        age = today.getFullYear() - dob.getFullYear();
-        const m = today.getMonth() - dob.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age -= 1;
-        if (age < 10 || age > 60) age = undefined;
-      }
+      const age = ageFromDob(dob);
       const name = `${formData.firstName} ${formData.lastName}`.trim();
 
       const { data } = await setPatientCredentials({
@@ -251,20 +312,28 @@ const RegistrationFlow = () => {
       setLoading(false);
       return;
     }
+    const dob = parseDobToDate(dobDay, dobMonth, dobYear);
+    if (!dob) {
+      setApiError('Please enter a valid date of birth (Day, Month, Year).');
+      setLoading(false);
+      return;
+    }
     if (registerPassword.length < 6) {
       setApiError('Password must be at least 6 characters.');
       setLoading(false);
       return;
     }
     try {
+      const age = ageFromDob(dob);
       const { data } = await registerPatientEmail(
         registerEmail.trim(),
         registerPassword,
         registerName.trim(),
-        formatPhone(registerPhone)
+        formatPhone(registerPhone),
+        age
       );
-      setPatientAuth(data.access_token, data.refresh_token, data.patient);
-      // Email sign-up does not collect DOB — open biodata on "How old are you?"
+      setPatientAuth(data.access_token, data.refresh_token, { ...data.patient, age: data.patient?.age ?? age });
+      // Age is known from the date of birth, so the questionnaire skips "How old are you?"
       navigate('/intake?from=email');
     } catch (err) {
       const d = err.response?.data;
@@ -472,6 +541,7 @@ const RegistrationFlow = () => {
                       required
                     />
                   </div>
+                  <DateOfBirthField {...dobProps} />
                   <div className="space-y-2">
                     <label className="font-label-sm text-on-surface-variant">EMAIL</label>
                     <input
@@ -672,65 +742,7 @@ const RegistrationFlow = () => {
                     />
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="font-label-sm text-on-surface-variant">DATE OF BIRTH</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="Day (DD)"
-                        maxLength={2}
-                        value={dobDay}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 2);
-                          setDobDay(val);
-                          if (val.length === 2 && monthInputRef.current) {
-                            monthInputRef.current.focus();
-                          }
-                        }}
-                        className="w-full px-3 py-3 text-center border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <input
-                        ref={monthInputRef}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="Month (MM)"
-                        maxLength={2}
-                        value={dobMonth}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 2);
-                          setDobMonth(val);
-                          if (val.length === 2 && yearInputRef.current) {
-                            yearInputRef.current.focus();
-                          }
-                        }}
-                        className="w-full px-3 py-3 text-center border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <input
-                        ref={yearInputRef}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="Year (YYYY)"
-                        maxLength={4}
-                        value={dobYear}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 4);
-                          setDobYear(val);
-                        }}
-                        className="w-full px-3 py-3 text-center border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-stone-400">e.g. 15 / 08 / 1996</p>
-                </div>
+                <DateOfBirthField {...dobProps} />
                 <div className="space-y-1">
                   <label className="font-label-sm text-on-surface-variant">EMAIL</label>
                   <input

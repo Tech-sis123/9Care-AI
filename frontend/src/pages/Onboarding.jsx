@@ -878,7 +878,7 @@ const IntakeQuestionnaire = () => {
   const [secIdx, setSecIdx] = useState(0);
   const [slideIdx, setSlideIdx] = useState(entryFrom === 'otp' ? 1 : 0);
   const [data, setData] = useState(() => {
-    if (entryFrom !== 'otp') return INIT;
+    if (!directStart) return INIT;
     const stored = getPatientData();
     if (stored?.age == null || stored.age === '') return INIT;
     return { ...INIT, age: stored.age, name: stored.name || INIT.name };
@@ -1403,7 +1403,7 @@ const IntakeQuestionnaire = () => {
     }
   }, [view, secIdx, data.surgeryCount, data.surgeries, data.parity, data.gravidity, slideIdx]);
 
-  // Direct entry after auth: email → "How old are you?"; OTP (DOB already collected) → occupation.
+  // Direct entry after sign-up: age known from the date of birth → occupation; otherwise "How old are you?".
   useEffect(() => {
     const entry = entryRef.current;
     if (!hydrated || (entry !== 'otp' && entry !== 'email')) return;
@@ -1416,7 +1416,7 @@ const IntakeQuestionnaire = () => {
 
     setSecIdx(biodataIdx);
     setView('section');
-    if (entry === 'otp' && ageFilled && occupationIdx >= 0) {
+    if (ageFilled && occupationIdx >= 0) {
       setSlideIdx(occupationIdx);
     } else {
       setSlideIdx(0);

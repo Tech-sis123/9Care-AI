@@ -104,8 +104,8 @@ export const setRecoveredLoginDetails = (data) =>
   axios.post(`${BASE}/auth/patient/recover/credentials`, data);
 
 /** Direct email + password signup (no OTP). */
-export const registerPatientEmail = (email, password, name, phone_number) =>
-  axios.post(`${BASE}/auth/patient/register-email`, { email, password, name, phone_number });
+export const registerPatientEmail = (email, password, name, phone_number, age) =>
+  axios.post(`${BASE}/auth/patient/register-email`, { email, password, name, phone_number, age });
 
 export const doctorLogin = (email, password) =>
   axios.post(`${BASE}/auth/doctor/login`, { email, password });
