@@ -90,3 +90,15 @@ export const whatsappSchema = z.object({
   consent: z.literal(true, { error: 'Tick the box to agree to receive WhatsApp messages' }),
   source: z.enum(['prompt', 'profile']).optional(),
 });
+
+/** POST /patients/me/visit: the page she opened the app on (anything odd is stored as "/"). */
+export const visitSchema = z
+  .object({
+    path: z
+      .string()
+      .trim()
+      .regex(/^\/[\w\-/:.]{0,120}$/)
+      .optional()
+      .catch(undefined),
+  })
+  .default({});

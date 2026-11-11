@@ -180,6 +180,19 @@ export const patientsController = {
   },
 
   /**
+   * POST /patients/me/visit — the app was opened (load, session restore, or back to the foreground).
+   * Moves last_seen_at; counts a new visit only after 30+ minutes away.
+   */
+  async recordVisit(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const counted = await recordPatientSiteVisit(req.user!.id, req.body?.path || '/');
+      res.status(200).json({ counted });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * GET /patients/me — full profile + pregnancy
    */
   async getMe(req: AuthRequest, res: Response, next: NextFunction) {
@@ -324,7 +337,6 @@ export const patientsController = {
         // Older accounts with no age: the dashboard asks for her date of birth
         needs_date_of_birth: needsDateOfBirth(patient),
         last_seen_at: patient.last_seen_at,
-        site_visit_count: patient.site_visit_count,
       });
     } catch (err) {
       next(err);

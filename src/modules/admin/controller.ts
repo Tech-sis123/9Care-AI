@@ -6,6 +6,7 @@ import { termiiService } from '../../services/termii';
 import { NotFoundError, ValidationError } from '../../utils/errors';
 import { processRetentionSms } from '../../jobs/retentionSms';
 import { isSmsPhone } from '../../utils/contact';
+import { retentionStats } from '../../services/site-visits';
 
 export const adminController = {
   /**
@@ -56,22 +57,15 @@ export const adminController = {
         where: { status: 'open' },
       });
 
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - 7);
-      const [patientsSeenLast7Days, totalSiteVisits] = await Promise.all([
-        prisma.patient.count({ where: { last_seen_at: { gte: weekStart } } }),
-        prisma.patient.aggregate({ _sum: { site_visit_count: true } }),
-      ]);
+      // Retention comes from the visits table, not patients.site_visit_count
+      const siteVisits = await retentionStats();
 
       res.status(200).json({
         risk_distribution: distribution,
         total_active_patients: totalActive,
         alerts_this_week: alertsThisWeek,
         open_alerts: openAlerts,
-        site_visits: {
-          patients_seen_last_7_days: patientsSeenLast7Days,
-          total_recorded_visits: totalSiteVisits._sum.site_visit_count || 0,
-        },
+        site_visits: siteVisits,
       });
     } catch (err) {
       next(err);

@@ -10,6 +10,7 @@ import { splitRiskReasons, isSmsPhone, formatPhoneForTermii } from '../../utils/
 import { doctorSmsJobs } from '../../services/doctorSmsJobs';
 import { assessPatientRisk } from '../risk/assess';
 import { deliverySummary, postpartumStatus } from '../../utils/delivery';
+import { visitCounts } from '../../services/site-visits';
 
 export const providersController = {
   /**
@@ -284,6 +285,7 @@ export const providersController = {
       const totalPages = Math.ceil(total / limit) || 1;
       const startIndex = (page - 1) * limit;
       const paginated = filtered.slice(startIndex, startIndex + limit);
+      const visits = await visitCounts(paginated.map((p) => p.id));
 
       const result = paginated.map((p) => ({
         id: p.id,
@@ -294,7 +296,8 @@ export const providersController = {
         risk_tier: p.risk_assessments[0]?.tier || null,
         risk_reasons: splitRiskReasons(p.risk_assessments[0]?.reasons).clinical,
         last_seen_at: p.last_seen_at,
-        site_visit_count: p.site_visit_count,
+        // From the visits table (one per return after 30+ minutes away)
+        site_visit_count: visits.get(p.id) ?? 0,
         has_sms: isSmsPhone(p.phone_number),
         ega_weeks: p.pregnancies[0]?.lmp_date && !p.pregnancies[0]?.delivery_date
           ? calculateEGAWeeks(new Date(p.pregnancies[0].lmp_date))
@@ -467,12 +470,15 @@ export const providersController = {
 
       const patient_code = `MC-${patient.id.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
       // Omit raw appointments relation; expose shaped booking_history instead
-      const { appointments: _apts, ...patientRest } = patient as typeof patient & {
+      const { appointments: _apts, password_hash: _pw, ...patientRest } = patient as typeof patient & {
         appointments: unknown;
+        password_hash?: string | null;
       };
+      const visits = await visitCounts([patient.id]);
       res.status(200).json({
         patient: {
           ...patientRest,
+          site_visit_count: visits.get(patient.id) ?? 0,
           pregnancies,
           patient_code,
           booking_history,

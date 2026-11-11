@@ -14,10 +14,12 @@ import PatientProfile from "./pages/PatientProfile"
 import ResetPassword from "./pages/ResetPassword"
 import VerifyEmail from "./pages/VerifyEmail"
 import RecoverAccount from "./pages/RecoverAccount"
+import VisitTracker from "./components/VisitTracker"
 
 export default function App() {
   return (
     <BrowserRouter>
+      <VisitTracker />
       <Routes>
         <Route path='/' element={<Landing />} />
         <Route path='/register' element={<RegistrationFlow />} />

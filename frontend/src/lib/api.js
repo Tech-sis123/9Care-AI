@@ -39,6 +39,8 @@ patientApi.interceptors.response.use(
           // fallthrough to logout
         }
       }
+      // Background calls (the visit ping) never log her out or move her off the page
+      if (err.config?.quiet) return Promise.reject(err);
       clearPatientAuth();
       window.location.href = '/register';
     }
@@ -122,6 +124,8 @@ export const resetDoctorPassword = (token, new_password) =>
 // ── Patient ───────────────────────────────────────────────────────────────────
 
 export const getPatientMe = () => patientApi.get('/patients/me');
+// App opened / brought back to the foreground (the server counts a visit after 30+ minutes away)
+export const recordPatientVisit = path => patientApi.post('/patients/me/visit', { path }, { quiet: true });
 export const getPatientDashboard = () => patientApi.get('/patients/me/dashboard');
 export const upsertProfile = data => patientApi.post('/patients/profile', data);
 export const addPregnancy = data => patientApi.post('/patients/pregnancy', data);
