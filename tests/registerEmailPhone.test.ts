@@ -69,14 +69,20 @@ describe('email sign-up with phone number', () => {
     expect(patientRegisterEmailSchema.safeParse({ email: 'a@b.co', password: 'secret1', phone_number: 'abc' }).success).toBe(false);
   });
 
-  it('saves the age worked out from her date of birth, and still signs up without one', async () => {
+  it('saves her date of birth with the age worked out from it, and still signs up without one', async () => {
+    vi.useFakeTimers({ now: new Date('2026-11-11T09:00:00Z'), toFake: ['Date'] });
     vi.mocked(prisma.patient.findFirst).mockResolvedValue(null);
-    const { res } = await register({ email: 'dupe@example.com', password: 'secret1', phone_number: '08012345678', age: 29 });
-    expect(vi.mocked(prisma.patient.create).mock.calls[0][0].data.age).toBe(29);
-    expect(res.json.mock.calls[0][0].patient.age).toBe(29);
+    const { res } = await register({ email: 'dupe@example.com', password: 'secret1', phone_number: '08012345678', date_of_birth: '1996-08-15' });
+    const data = vi.mocked(prisma.patient.create).mock.calls[0][0].data;
+    expect(data.date_of_birth).toEqual(new Date('1996-08-15T00:00:00Z'));
+    expect(data.age).toBe(30);
+    expect(res.json.mock.calls[0][0].patient.age).toBe(30);
 
     await register({ email: 'eke@example.com', password: 'secret1' });
-    expect(vi.mocked(prisma.patient.create).mock.calls[1][0].data.age).toBeNull();
-    expect(patientRegisterEmailSchema.safeParse({ email: 'a@b.co', password: 'secret1', age: 5 }).success).toBe(false);
+    expect(vi.mocked(prisma.patient.create).mock.calls[1][0].data.date_of_birth).toBeUndefined();
+    for (const bad of ['2023-01-01', '1996-02-30', '15/08/1996']) {
+      expect(patientRegisterEmailSchema.safeParse({ email: 'a@b.co', password: 'secret1', date_of_birth: bad }).success, bad).toBe(false);
+    }
+    vi.useRealTimers();
   });
 });

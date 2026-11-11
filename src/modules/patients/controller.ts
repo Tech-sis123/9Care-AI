@@ -18,6 +18,21 @@ import { recordPatientSiteVisit } from '../../services/site-visits';
 import { isUsableEmail } from '../../utils/contact';
 import { whatsappContact, whatsappStatus } from '../../services/whatsappContact';
 import { env } from '../../config/env';
+import { ageOn, parseDateOfBirth, refreshedAge } from '../../utils/dateOfBirth';
+
+/** Updates the stored age once her birthday has passed (age is read by the risk engine and doctors). */
+async function keepAgeCurrent(patient: { id: string; date_of_birth: Date | null; age: number | null }) {
+  const age = refreshedAge(patient);
+  if (age == null) return;
+  patient.age = age;
+  await prisma.patient.update({ where: { id: patient.id }, data: { age } }).catch((err) => {
+    logger.warn({ err, patientId: patient.id }, 'Failed to update age from date of birth');
+  });
+}
+
+/** Ask for her date of birth when the app has neither it nor her age (e.g. older accounts). */
+const needsDateOfBirth = (patient: { date_of_birth: Date | null; age: number | null }) =>
+  !patient.date_of_birth && patient.age == null;
 
 export const patientsController = {
   /**
@@ -34,7 +49,13 @@ export const patientsController = {
       // Only set defined fields so partial updates never wipe columns with undefined
       const dataUpdate: Record<string, unknown> = {};
       if (data.name != null) dataUpdate.name = data.name;
-      if (data.age != null) dataUpdate.age = data.age;
+      if (data.date_of_birth) {
+        const dob = parseDateOfBirth(data.date_of_birth)!;
+        dataUpdate.date_of_birth = dob;
+        dataUpdate.age = ageOn(dob);
+      } else if (data.age != null && !before.date_of_birth) {
+        dataUpdate.age = data.age;
+      }
       if (data.education_level !== undefined) dataUpdate.education_level = data.education_level;
       if (data.occupation !== undefined) dataUpdate.occupation = data.occupation;
       if (data.marital_status !== undefined) dataUpdate.marital_status = data.marital_status;
@@ -70,7 +91,8 @@ export const patientsController = {
         },
       });
 
-      res.status(200).json({ patient });
+      const { password_hash: _pw, ...safePatient } = patient;
+      res.status(200).json({ patient: safePatient });
     } catch (err) {
       next(err);
     }
@@ -174,6 +196,7 @@ export const patientsController = {
       if (!patient) {
         throw new NotFoundError('Patient not found');
       }
+      await keepAgeCurrent(patient);
 
       // Recompute current EGA dynamically (not shown once she has delivered)
       const pregnancy = patient.pregnancies[0];
@@ -199,6 +222,7 @@ export const patientsController = {
         current_ega: ega,
         delivery,
         whatsapp: whatsappStatus(patient),
+        needs_date_of_birth: needsDateOfBirth(patient),
       });
     } catch (err) {
       next(err);
@@ -225,6 +249,7 @@ export const patientsController = {
       if (!patient) {
         throw new NotFoundError('Patient not found');
       }
+      await keepAgeCurrent(patient);
 
       const pregnancy = patient.pregnancies[0] || null;
       const delivery = deliverySummary(pregnancy);
@@ -296,6 +321,8 @@ export const patientsController = {
         support_whatsapp: env.SUPPORT_WHATSAPP_NUMBER,
         // Asked after account recovery, at every login, until she saves a WhatsApp number
         whatsapp: whatsappStatus(patient),
+        // Older accounts with no age: the dashboard asks for her date of birth
+        needs_date_of_birth: needsDateOfBirth(patient),
         last_seen_at: patient.last_seen_at,
         site_visit_count: patient.site_visit_count,
       });

@@ -11,6 +11,7 @@ import WhatsAppContact from '../components/WhatsAppContact';
 import EmailPrompt from '../components/EmailPrompt';
 import DeliveryModal from '../components/DeliveryModal';
 import WhatsAppNumberModal from '../components/WhatsAppNumberModal';
+import DateOfBirthModal from '../components/DateOfBirthModal';
 import { POSTPARTUM_DAYS } from '../lib/delivery';
 
 const AIChatPanel = ({ onClose }) => {
@@ -149,6 +150,8 @@ const PatientDashboard = () => {
   const [deliveryModal, setDeliveryModal] = useState(null);
   // After account recovery: ask for her WhatsApp number at each login until she saves one
   const [showWhatsappPrompt, setShowWhatsappPrompt] = useState(false);
+  // Older accounts with no age: ask for her date of birth (shown before the other pop-ups)
+  const [showDobPrompt, setShowDobPrompt] = useState(false);
 
   useEffect(() => {
     if (!isPatientAuthenticated()) {
@@ -173,6 +176,9 @@ const PatientDashboard = () => {
         }
         if (r.data?.whatsapp?.prompt && sessionStorage.getItem('mc_whatsapp_prompt_dismissed') !== '1') {
           setShowWhatsappPrompt(true);
+        }
+        if (r.data?.needs_date_of_birth && sessionStorage.getItem('mc_dob_prompt_dismissed') !== '1') {
+          setShowDobPrompt(true);
         }
       })
       .catch(() => {})
@@ -588,7 +594,20 @@ const PatientDashboard = () => {
 
       <WhatsAppContact number={dashData?.support_whatsapp} />
 
-      {showWhatsappPrompt ? (
+      {showDobPrompt ? (
+        <DateOfBirthModal
+          onLater={() => {
+            sessionStorage.setItem('mc_dob_prompt_dismissed', '1');
+            setShowDobPrompt(false);
+          }}
+          onSaved={(p) => {
+            setShowDobPrompt(false);
+            if (p) setPatientData((prev) => ({ ...prev, date_of_birth: p.date_of_birth, age: p.age }));
+          }}
+        />
+      ) : null}
+
+      {showWhatsappPrompt && !showDobPrompt ? (
         <WhatsAppNumberModal
           phoneNumber={dashData?.whatsapp?.phone_number}
           onLater={() => {
@@ -602,7 +621,7 @@ const PatientDashboard = () => {
         />
       ) : null}
 
-      {deliveryModal && !showEmailPrompt && !showWhatsappPrompt ? (
+      {deliveryModal && !showEmailPrompt && !showWhatsappPrompt && !showDobPrompt ? (
         <DeliveryModal
           step={deliveryModal}
           pregnancyStart={dashData?.pregnancy_start}
@@ -618,7 +637,7 @@ const PatientDashboard = () => {
         />
       ) : null}
 
-      {showEmailPrompt && !showWhatsappPrompt ? (
+      {showEmailPrompt && !showWhatsappPrompt && !showDobPrompt ? (
         <EmailPrompt
           mode={patientData?.needs_email || dashData?.needs_email ? 'add' : 'verify'}
           initialEmail={patientData?.email || dashData?.email || ''}

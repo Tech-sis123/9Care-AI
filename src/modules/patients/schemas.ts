@@ -1,9 +1,13 @@
 import { z } from 'zod';
 import { COMPLICATION_KEYS } from '../../utils/delivery';
 import { normalizeWhatsappNumber } from '../../utils/contact';
+import { dateOfBirthSchema } from '../../utils/dateOfBirth';
 
 export const createProfileSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  // Optional so the date-of-birth pop-up can save on its own
+  name: z.string().min(1, 'Name is required').optional(),
+  date_of_birth: dateOfBirthSchema.optional(),
+  /** Older app versions send the age itself; ignored once a date of birth is saved */
   age: z.coerce.number().int().min(10).max(60).optional(),
   education_level: z.string().optional(),
   occupation: z.string().optional(),

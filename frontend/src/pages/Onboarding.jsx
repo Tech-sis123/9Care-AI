@@ -233,9 +233,8 @@ function visibleSectionMeta(data) {
 function buildSlides(sectionId, data) {
   switch (sectionId) {
 
+    // Age comes from the date of birth given at sign-up (or the dashboard pop-up), not asked here
     case 'biodata': return [
-      { id: 'age',           question: 'How old are you?',                           field: 'age',           type: 'number',  required: true,  placeholder: 'e.g. 28', min: 12, max: 55,
-        hint: 'Your age is used in your risk assessment — please confirm it is correct.' },
       { id: 'occupation',    question: 'What is your occupation?',                   field: 'occupation',    type: 'text',    required: false, placeholder: 'e.g. Trader, Teacher, Nurse' },
       { id: 'education',     question: 'What is your level of education?',           field: 'education',     type: 'chips',   required: false,
         options: ['Primary', 'Secondary', 'Tertiary (University, Polytechnic)', 'None'] },
@@ -876,13 +875,8 @@ const IntakeQuestionnaire = () => {
   const entryRef = useRef(directStart ? entryFrom : null);
   const [view, setView] = useState(directStart ? 'section' : 'overview');
   const [secIdx, setSecIdx] = useState(0);
-  const [slideIdx, setSlideIdx] = useState(entryFrom === 'otp' ? 1 : 0);
-  const [data, setData] = useState(() => {
-    if (!directStart) return INIT;
-    const stored = getPatientData();
-    if (stored?.age == null || stored.age === '') return INIT;
-    return { ...INIT, age: stored.age, name: stored.name || INIT.name };
-  });
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [data, setData] = useState(() => (directStart ? { ...INIT, name: getPatientData()?.name || INIT.name } : INIT));
   const [loading, setLoading] = useState(false);
   const [navLoading, setNavLoading] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -1259,10 +1253,8 @@ const IntakeQuestionnaire = () => {
     setSaveError('');
     try {
       if (sId === 'biodata') {
-        const ageNum = parseInt(String(data.age), 10);
         await upsertProfile({
           name: data.name || undefined,
-          age: !isNaN(ageNum) && ageNum > 0 ? ageNum : undefined,
           occupation: data.occupation || undefined,
           education_level: data.education || undefined,
           marital_status: data.marital?.toLowerCase() || undefined,
@@ -1403,24 +1395,15 @@ const IntakeQuestionnaire = () => {
     }
   }, [view, secIdx, data.surgeryCount, data.surgeries, data.parity, data.gravidity, slideIdx]);
 
-  // Direct entry after sign-up: age known from the date of birth → occupation; otherwise "How old are you?".
+  // Direct entry after sign-up: open biodata at its first question
   useEffect(() => {
     const entry = entryRef.current;
     if (!hydrated || (entry !== 'otp' && entry !== 'email')) return;
     entryRef.current = null;
 
-    const biodataIdx = Math.max(0, sections.findIndex((s) => s.id === 'biodata'));
-    const slides = getSlides(sections[biodataIdx]?.id);
-    const occupationIdx = slides.findIndex((s) => s.id === 'occupation');
-    const ageFilled = isFilledValue(data.age) || isFilledValue(getPatientData()?.age);
-
-    setSecIdx(biodataIdx);
+    setSecIdx(Math.max(0, sections.findIndex((s) => s.id === 'biodata')));
     setView('section');
-    if (ageFilled && occupationIdx >= 0) {
-      setSlideIdx(occupationIdx);
-    } else {
-      setSlideIdx(0);
-    }
+    setSlideIdx(0);
     setSearchParams({}, { replace: true });
   }, [hydrated, setSearchParams]);
 

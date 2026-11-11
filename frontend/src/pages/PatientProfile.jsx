@@ -7,6 +7,17 @@ import EmailPrompt from '../components/EmailPrompt';
 import { formatDeliveryDate } from '../lib/delivery';
 import WhatsAppNumberModal from '../components/WhatsAppNumberModal';
 import { formatWhatsappNumber } from '../lib/whatsapp';
+import DateOfBirthField from '../components/DateOfBirthField';
+import { dateOfBirthIso, splitDateOfBirth, DATE_OF_BIRTH_ERROR } from '../lib/dateOfBirth';
+
+/** "15 Aug 1996 (30 years)"; older accounts may only have an age. */
+const formatDateOfBirth = (dateOfBirth, age) => {
+  const { day, month, year } = splitDateOfBirth(dateOfBirth);
+  const ageText = age != null ? `${age} years` : '';
+  if (!year) return ageText || '—';
+  const date = new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return ageText ? `${date} (${ageText})` : date;
+};
 
 const InfoRow = ({ label, value, icon }) => (
   <div className="flex items-center justify-between py-4 border-b border-outline-variant/20 last:border-0">
@@ -25,7 +36,7 @@ const PatientProfile = () => {
   const [patient, setPatient] = useState(getPatientData());
   const [editForm, setEditForm] = useState({
     name: '',
-    age: '',
+    dob: { day: '', month: '', year: '' },
     occupation: '',
     address: '',
     education_level: '',
@@ -64,7 +75,7 @@ const PatientProfile = () => {
           setPatient(prev => ({ ...prev, ...r.data }));
           setEditForm({
             name: r.data.name || '',
-            age: r.data.age || '',
+            dob: splitDateOfBirth(r.data.date_of_birth),
             occupation: r.data.occupation || '',
             address: r.data.address || '',
             education_level: r.data.education_level || '',
@@ -195,19 +206,19 @@ const PatientProfile = () => {
       return;
     }
 
-    const ageNum =
-      editForm.age !== '' && editForm.age != null ? Number(editForm.age) : NaN;
-    if (editForm.age !== '' && editForm.age != null && (isNaN(ageNum) || ageNum < 10 || ageNum > 60)) {
-      setSaveError('Age must be a number between 10 and 60.');
-      showToast('error', 'Age must be between 10 and 60.');
+    // Age is worked out from the date of birth; leave all three boxes empty to keep things as they are
+    const { day, month, year } = editForm.dob;
+    const dobStarted = !!(day || month || year);
+    const dateOfBirth = dobStarted ? dateOfBirthIso(day, month, year) : null;
+    if (dobStarted && !dateOfBirth) {
+      setSaveError(DATE_OF_BIRTH_ERROR);
+      showToast('error', DATE_OF_BIRTH_ERROR);
       return;
     }
 
     const payload = {
       name,
-      ...(editForm.age !== '' && editForm.age != null && !isNaN(ageNum)
-        ? { age: ageNum }
-        : {}),
+      ...(dateOfBirth ? { date_of_birth: dateOfBirth } : {}),
       occupation: editForm.occupation || undefined,
       address: editForm.address || undefined,
       education_level: editForm.education_level || undefined,
@@ -398,10 +409,13 @@ const PatientProfile = () => {
                   <label className="font-label-sm text-xs text-on-surface-variant">Full name</label>
                   <input className="w-full px-3 py-2 rounded-xl border mt-1" value={editForm.name} onChange={e => handleEditChange('name', e.target.value)} />
                 </div>
-                <div>
-                  <label className="font-label-sm text-xs text-on-surface-variant">Age</label>
-                  <input type="number" min={10} max={60} className="w-full px-3 py-2 rounded-xl border mt-1" value={editForm.age} onChange={e => handleEditChange('age', e.target.value)} />
-                </div>
+                <DateOfBirthField
+                  value={editForm.dob}
+                  onChange={(dob) => handleEditChange('dob', dob)}
+                  label="Date of birth"
+                  labelClassName="font-label-sm text-xs text-on-surface-variant"
+                  idPrefix="profile-dob"
+                />
                 <div>
                   <label className="font-label-sm text-xs text-on-surface-variant">Phone</label>
                   <input className="w-full px-3 py-2 rounded-xl border mt-1" value={patient?.phone_number || ''} disabled />
@@ -424,7 +438,7 @@ const PatientProfile = () => {
             ) : (
               <>
                 <InfoRow label="Full Name"    value={patient?.name || '—'}                             icon="person" />
-                <InfoRow label="Age"           value={patient?.age ? `${patient.age} years` : '—'}      icon="today" />
+                <InfoRow label="Date of birth" value={formatDateOfBirth(patient?.date_of_birth, patient?.age)} icon="today" />
                 <InfoRow label="Phone"         value={patient?.phone_number || '—'}                     icon="phone" />
                 <InfoRow
                   label="Email"

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { dateOfBirthSchema } from '../../utils/dateOfBirth';
 
 export const otpRequestSchema = z.object({
   phone_number: z
@@ -22,6 +23,8 @@ export const patientSetCredentialsSchema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   name: z.string().min(2, 'Name is required').optional(),
+  date_of_birth: dateOfBirthSchema.optional(),
+  /** Older app versions send only the age */
   age: z.number().int().min(10).max(60).optional(),
 });
 
@@ -51,8 +54,7 @@ export const patientRegisterEmailSchema = z.object({
     .nullable()
     .transform((val) => (val ? val : null))
     .refine((val) => val === null || /^\+?[0-9\s-]{10,18}$/.test(val), 'Enter a valid phone number'),
-  // From the date of birth on the sign-up form (only age is stored)
-  age: z.number().int().min(10).max(60).optional(),
+  date_of_birth: dateOfBirthSchema.optional(),
 });
 
 export const doctorLoginSchema = z.object({

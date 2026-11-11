@@ -13,6 +13,13 @@ import { brevoService } from '../../services/brevo';
 import { AuthRequest } from '../../utils/types';
 import { isUsableEmail, isSmsPhone, formatPhoneForTermii, phoneVariants } from '../../utils/contact';
 import { patientRecovery, RecoveryAnswers } from '../../services/patientRecovery';
+import { ageOn, parseDateOfBirth } from '../../utils/dateOfBirth';
+
+/** Date of birth plus the age worked out from it (the schema has already checked the date). */
+function dateOfBirthFields(value: string) {
+  const dob = parseDateOfBirth(value)!;
+  return { date_of_birth: dob, age: ageOn(dob) };
+}
 
 function generateTokens(payload: { id: string; role: string; type: string }) {
   const access_token = jwt.sign(payload, env.JWT_SECRET, {
@@ -193,7 +200,7 @@ export const authController = {
   async patientSetCredentials(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const patientId = req.user!.id;
-      const { email, password, name, age } = req.body;
+      const { email, password, name, date_of_birth, age } = req.body;
       const normalizedEmail = String(email).trim().toLowerCase();
 
       const patient = await prisma.patient.findUnique({ where: { id: patientId } });
@@ -219,7 +226,7 @@ export const authController = {
           password_hash,
           ...(emailChanged ? { email_verified_at: null } : {}),
           ...(name ? { name } : {}),
-          ...(age != null ? { age } : {}),
+          ...(date_of_birth ? dateOfBirthFields(date_of_birth) : age != null ? { age } : {}),
         },
       });
 
@@ -297,7 +304,7 @@ export const authController = {
    */
   async patientRegisterEmail(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password, name, phone_number, age } = req.body;
+      const { email, password, name, phone_number, date_of_birth } = req.body;
       const normalizedEmail = String(email).trim().toLowerCase();
 
       if (!isUsableEmail(normalizedEmail)) {
@@ -328,7 +335,7 @@ export const authController = {
           password_hash,
           phone_number: normalizedPhone || `email-${Date.now()}`,
           name: name || null,
-          age: age ?? null,
+          ...(date_of_birth ? dateOfBirthFields(date_of_birth) : {}),
           intake_status: 'not_started',
           email_verified_at: null,
         },

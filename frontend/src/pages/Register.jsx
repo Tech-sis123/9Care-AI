@@ -9,97 +9,8 @@ import {
   registerPatientEmail,
 } from '../lib/api';
 import { setPatientAuth, isPatientAuthenticated } from '../lib/auth';
-
-const parseDobToDate = (day, month, year) => {
-  const d = parseInt(day, 10);
-  const m = parseInt(month, 10);
-  const y = parseInt(year, 10);
-  if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
-  if (m < 1 || m > 12) return null;
-  if (d < 1 || d > 31) return null;
-  const currentYear = new Date().getFullYear();
-  if (y < 1920 || y > currentYear) return null;
-
-  const date = new Date(y, m - 1, d);
-  if (
-    date.getFullYear() !== y ||
-    date.getMonth() !== m - 1 ||
-    date.getDate() !== d
-  ) {
-    return null;
-  }
-  if (date > new Date()) return null;
-  return date;
-};
-
-/** Whole years old today; undefined outside 10–60 (likely a typo). */
-const ageFromDob = (dob) => {
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const m = today.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age -= 1;
-  return age >= 10 && age <= 60 ? age : undefined;
-};
-
-/** Day / Month / Year boxes that jump to the next box when one is full. */
-const DateOfBirthField = ({ day, month, year, onDay, onMonth, onYear }) => {
-  const monthRef = useRef(null);
-  const yearRef = useRef(null);
-  const boxClass =
-    'w-full px-3 py-3 text-center border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm';
-  const digits = (value, max) => value.replace(/\D/g, '').slice(0, max);
-  return (
-    <div className="space-y-1">
-      <label className="font-label-sm text-on-surface-variant">DATE OF BIRTH</label>
-      <div className="grid grid-cols-3 gap-2">
-        <input
-          type="text"
-          inputMode="numeric"
-          placeholder="Day (DD)"
-          aria-label="Day of birth"
-          maxLength={2}
-          value={day}
-          onChange={(e) => {
-            const val = digits(e.target.value, 2);
-            onDay(val);
-            if (val.length === 2) monthRef.current?.focus();
-          }}
-          className={boxClass}
-          required
-        />
-        <input
-          ref={monthRef}
-          type="text"
-          inputMode="numeric"
-          placeholder="Month (MM)"
-          aria-label="Month of birth"
-          maxLength={2}
-          value={month}
-          onChange={(e) => {
-            const val = digits(e.target.value, 2);
-            onMonth(val);
-            if (val.length === 2) yearRef.current?.focus();
-          }}
-          className={boxClass}
-          required
-        />
-        <input
-          ref={yearRef}
-          type="text"
-          inputMode="numeric"
-          placeholder="Year (YYYY)"
-          aria-label="Year of birth"
-          maxLength={4}
-          value={year}
-          onChange={(e) => onYear(digits(e.target.value, 4))}
-          className={boxClass}
-          required
-        />
-      </div>
-      <p className="text-[11px] text-stone-400">e.g. 15 / 08 / 1996</p>
-    </div>
-  );
-};
+import DateOfBirthField from '../components/DateOfBirthField';
+import { dateOfBirthIso, DATE_OF_BIRTH_ERROR } from '../lib/dateOfBirth';
 
 const RegistrationFlow = () => {
   const navigate = useNavigate();
@@ -128,10 +39,7 @@ const RegistrationFlow = () => {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
-  const [dobDay, setDobDay] = useState('');
-  const [dobMonth, setDobMonth] = useState('');
-  const [dobYear, setDobYear] = useState('');
-  const dobProps = { day: dobDay, month: dobMonth, year: dobYear, onDay: setDobDay, onMonth: setDobMonth, onYear: setDobYear };
+  const [dob, setDob] = useState({ day: '', month: '', year: '' });
 
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
@@ -251,21 +159,21 @@ const RegistrationFlow = () => {
       setApiError('Password must be at least 6 characters.');
       return;
     }
-    const dob = parseDobToDate(dobDay, dobMonth, dobYear);
-    if (!dobDay || !dobMonth || !dobYear || !dob) {
-      setApiError('Please enter a valid date of birth (Day, Month, Year).');
+    const dateOfBirth = dateOfBirthIso(dob.day, dob.month, dob.year);
+    if (!dateOfBirth) {
+      setApiError(DATE_OF_BIRTH_ERROR);
       return;
     }
     setLoading(true);
     try {
-      const age = ageFromDob(dob);
       const name = `${formData.firstName} ${formData.lastName}`.trim();
 
+      // The server works out her age from the date of birth
       const { data } = await setPatientCredentials({
         email: formData.email.trim(),
         password: formData.password,
         name: name || undefined,
-        age: age != null ? age : undefined,
+        date_of_birth: dateOfBirth,
       });
 
       if (data?.patient) {
@@ -273,19 +181,13 @@ const RegistrationFlow = () => {
         setPatientAuth(
           localStorage.getItem('mc_patient_token'),
           localStorage.getItem('mc_patient_refresh'),
-          { ...existing, ...data.patient, age: data.patient.age ?? age }
+          { ...existing, ...data.patient }
         );
       }
 
-      // Always try to persist age on the profile (risk engine requires it)
-      await upsertProfile({
-        name: name || undefined,
-        age: age != null ? age : undefined,
-        language_preference: 'en',
-      }).catch(() => {});
+      await upsertProfile({ name: name || undefined, language_preference: 'en' }).catch(() => {});
 
-      // Resume questionnaire if in progress; otherwise start intake.
-      // OTP sign-up already collected DOB/age, so skip the age slide and open occupation.
+      // Resume questionnaire if in progress; otherwise start intake
       const status = data?.patient?.intake_status;
       if (status === 'submitted') navigate('/dashboard');
       else navigate('/intake?from=otp');
@@ -312,9 +214,9 @@ const RegistrationFlow = () => {
       setLoading(false);
       return;
     }
-    const dob = parseDobToDate(dobDay, dobMonth, dobYear);
-    if (!dob) {
-      setApiError('Please enter a valid date of birth (Day, Month, Year).');
+    const dateOfBirth = dateOfBirthIso(dob.day, dob.month, dob.year);
+    if (!dateOfBirth) {
+      setApiError(DATE_OF_BIRTH_ERROR);
       setLoading(false);
       return;
     }
@@ -324,16 +226,14 @@ const RegistrationFlow = () => {
       return;
     }
     try {
-      const age = ageFromDob(dob);
       const { data } = await registerPatientEmail(
         registerEmail.trim(),
         registerPassword,
         registerName.trim(),
         formatPhone(registerPhone),
-        age
+        dateOfBirth
       );
-      setPatientAuth(data.access_token, data.refresh_token, { ...data.patient, age: data.patient?.age ?? age });
-      // Age is known from the date of birth, so the questionnaire skips "How old are you?"
+      setPatientAuth(data.access_token, data.refresh_token, data.patient);
       navigate('/intake?from=email');
     } catch (err) {
       const d = err.response?.data;
@@ -541,7 +441,7 @@ const RegistrationFlow = () => {
                       required
                     />
                   </div>
-                  <DateOfBirthField {...dobProps} />
+                  <DateOfBirthField value={dob} onChange={setDob} />
                   <div className="space-y-2">
                     <label className="font-label-sm text-on-surface-variant">EMAIL</label>
                     <input
@@ -742,7 +642,7 @@ const RegistrationFlow = () => {
                     />
                   </div>
                 </div>
-                <DateOfBirthField {...dobProps} />
+                <DateOfBirthField value={dob} onChange={setDob} />
                 <div className="space-y-1">
                   <label className="font-label-sm text-on-surface-variant">EMAIL</label>
                   <input

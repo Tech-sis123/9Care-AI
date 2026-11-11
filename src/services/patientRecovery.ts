@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import prisma from '../config/prisma';
 import { redis } from '../config/redis';
+import { parseDateOfBirth } from '../utils/dateOfBirth';
 
 /**
  * TEMPORARY biodata-based account recovery.
@@ -32,6 +33,7 @@ interface RecoveryCandidate {
   phone_number: string;
   email: string | null;
   age: number | null;
+  date_of_birth?: Date | null;
   education_level: string | null;
 }
 
@@ -71,6 +73,8 @@ export function ageFromDateOfBirth(dob?: string | null, today = new Date()): num
   return age;
 }
 
+const sameDay = (a: Date, b: Date) => a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10);
+
 /** Education is stored as free-ish text ("Primary", "tertiary", "Tertiary (University, Polytechnic)"). */
 export function educationBucket(level?: string | null): string | null {
   const s = level?.trim().toLowerCase();
@@ -85,9 +89,14 @@ export function educationBucket(level?: string | null): string | null {
 export function matchedFactors(candidate: RecoveryCandidate, answers: RecoveryAnswers): MatchedFactor[] {
   const matched: MatchedFactor[] = [];
 
-  // Only age is stored (sign-up converts date of birth to age), and it can be a year out of date
+  // Exact date when saved; older accounts only have an age, which can be a year out of date
+  const givenDob = parseDateOfBirth(answers.date_of_birth);
   const givenAge = ageFromDateOfBirth(answers.date_of_birth);
-  if (givenAge != null && candidate.age != null && Math.abs(candidate.age - givenAge) <= 1) matched.push('date_of_birth');
+  if (candidate.date_of_birth) {
+    if (givenDob && sameDay(givenDob, candidate.date_of_birth)) matched.push('date_of_birth');
+  } else if (givenAge != null && candidate.age != null && Math.abs(candidate.age - givenAge) <= 1) {
+    matched.push('date_of_birth');
+  }
 
   const givenEducation = educationBucket(answers.education_level);
   if (givenEducation && givenEducation === educationBucket(candidate.education_level)) matched.push('education_level');
@@ -131,6 +140,7 @@ async function findCandidates(answers: RecoveryAnswers): Promise<RecoveryCandida
       phone_number: true,
       email: true,
       age: true,
+      date_of_birth: true,
       education_level: true,
     },
     take: 200,

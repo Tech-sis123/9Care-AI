@@ -17,6 +17,8 @@ model Patient {
   username              String?  @unique
   password_hash         String?
   name                  String?
+  /// What she enters; `age` is worked out from it and kept current (see src/utils/dateOfBirth.ts)
+  date_of_birth         DateTime? @db.Date
   age                   Int?
   education_level       String?
   occupation            String?
