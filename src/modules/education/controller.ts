@@ -9,7 +9,7 @@ import { logger } from '../../utils/logger';
 import { z } from 'zod';
 import { educationContentSchema } from './schemas';
 import { commentStatsByModule } from './comments';
-import { moduleStage, visibleStages } from './stages';
+import { isLessonVisible, moduleStage, moduleStages, stagesColumn, visibleStages } from './stages';
 import { deliverySummary } from '../../utils/delivery';
 
 export const educationController = {
@@ -80,13 +80,14 @@ export const educationController = {
       });
 
       // Map completed status & personalize modules list
-      const mappedModules = modules.filter((mod) => stages.has(moduleStage(mod))).map((mod) => {
+      const mappedModules = modules.filter((mod) => isLessonVisible(mod, stages)).map((mod) => {
         const isCompleted = completedIds.has(mod.id);
         const isTargetWeek = egaWeeks !== null && mod.week_number === egaWeeks;
 
         return {
           ...mod,
           stage: moduleStage(mod),
+          stages: moduleStages(mod),
           is_completed: isCompleted,
           is_current_recommendation: isTargetWeek,
           is_safety_warning: riskTier !== 'LOW' && mod.week_number === 28, // Pinned safety module
@@ -315,7 +316,7 @@ function toModuleData(input: EducationContentInput) {
   return {
     content_type: input.content_type,
     title: input.title,
-    stage: input.stage,
+    stage: stagesColumn(input.stages),
     week_number: null, // replaced by stage; kept only on legacy rows
     summary: input.summary,
     status: input.status,

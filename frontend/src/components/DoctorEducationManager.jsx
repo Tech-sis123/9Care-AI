@@ -8,12 +8,12 @@ import {
 } from '../lib/api';
 import { getVideoSource } from '../lib/videoEmbed';
 import DoctorLessonComments from './DoctorLessonComments';
-import { EDUCATION_STAGES, moduleStage, stageLabel } from '../lib/delivery';
+import { EDUCATION_STAGES, moduleStages, normalizeStages, stageLabel } from '../lib/delivery';
 
 const EMPTY_FORM = {
   content_type: 'video',
   title: '',
-  stage: 'general',
+  stages: ['general'],
   summary: '',
   video_url: '',
   transcript: '',
@@ -101,7 +101,7 @@ const ContentEditor = ({ initial, onClose, onSaved }) => {
           ...EMPTY_FORM,
           ...Object.fromEntries(Object.keys(EMPTY_FORM).map((k) => [k, initial[k] ?? EMPTY_FORM[k]])),
           content_type: moduleType(initial) === 'video' ? 'video' : 'article',
-          stage: moduleStage(initial),
+          stages: moduleStages(initial),
           status: initial.status === 'published' ? 'published' : 'draft',
         }
       : EMPTY_FORM
@@ -115,6 +115,18 @@ const ContentEditor = ({ initial, onClose, onSaved }) => {
     if (fieldErrors[key]) setFieldErrors((fe) => ({ ...fe, [key]: undefined }));
   };
 
+  // Ticking General clears the trimesters (it already covers every week), and the other way round
+  const toggleStage = (id) => {
+    setForm((f) => {
+      const has = f.stages.includes(id);
+      let next;
+      if (id === 'general') next = has ? [] : ['general'];
+      else next = normalizeStages(has ? f.stages.filter((s) => s !== id) : [...f.stages.filter((s) => s !== 'general'), id]);
+      return { ...f, stages: next };
+    });
+    if (fieldErrors.stages) setFieldErrors((fe) => ({ ...fe, stages: undefined }));
+  };
+
   const isVideo = form.content_type === 'video';
 
   const handleSave = async (e) => {
@@ -122,6 +134,11 @@ const ContentEditor = ({ initial, onClose, onSaved }) => {
     setSaving(true);
     setSaveError('');
     setFieldErrors({});
+    if (!form.stages.length) {
+      setFieldErrors({ stages: 'Choose at least one group' });
+      setSaving(false);
+      return;
+    }
     const payload = { ...form };
     try {
       const { data } = isEdit
@@ -186,13 +203,38 @@ const ContentEditor = ({ initial, onClose, onSaved }) => {
           </Field>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Who sees it" hint="Patients see it while their current week is in this group." error={fieldErrors.stage}>
-              <select value={form.stage} onChange={set('stage')} className={inputClass}>
-                {EDUCATION_STAGES.map((s) => (
-                  <option key={s.id} value={s.id}>{s.label} ({s.range})</option>
-                ))}
-              </select>
-            </Field>
+            <fieldset className="space-y-1.5">
+              <legend className="text-xs font-semibold text-amber-950 mb-1.5">Who sees it</legend>
+              <div className="space-y-1.5">
+                {EDUCATION_STAGES.map((s) => {
+                  const checked = form.stages.includes(s.id);
+                  return (
+                    <label
+                      key={s.id}
+                      className={`flex items-start gap-2.5 rounded-lg border px-3 py-2 cursor-pointer text-sm transition-colors ${
+                        checked ? 'border-primary bg-primary/5' : 'border-outline-variant/60 hover:border-primary/40'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleStage(s.id)}
+                        className="mt-0.5 accent-primary w-4 h-4 shrink-0"
+                      />
+                      <span>
+                        <span className="font-medium text-on-surface">{s.label}</span>
+                        <span className="text-on-surface-variant"> ({s.range})</span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              {fieldErrors.stages ? (
+                <span className="block text-[11px] text-rose-700">{fieldErrors.stages}</span>
+              ) : (
+                <span className="block text-[11px] text-on-surface-variant/80">Tick one or more. Patients see it while their current week is in a ticked group.</span>
+              )}
+            </fieldset>
             <Field label="Visibility" error={fieldErrors.status}>
               <select value={form.status} onChange={set('status')} className={inputClass}>
                 <option value="published">Published (patients can see it)</option>

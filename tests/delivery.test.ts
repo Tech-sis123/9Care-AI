@@ -79,7 +79,7 @@ describe('lesson groups', () => {
 
   it('doctor form accepts a group instead of a week', () => {
     const parsed = educationContentSchema.parse({ content_type: 'video', title: 'Breastfeeding', video_url: 'https://youtu.be/x', stage: 'postpartum' });
-    expect(parsed.stage).toBe('postpartum');
+    expect(parsed.stages).toEqual(['postpartum']);
     expect(educationContentSchema.safeParse({ content_type: 'video', title: 'Bad', video_url: 'https://youtu.be/x', stage: 'week_9' }).success).toBe(false);
   });
 });

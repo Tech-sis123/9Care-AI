@@ -10,7 +10,7 @@ import {
   lagosDateString,
   pregnancyStartDate,
 } from '../../utils/delivery';
-import { moduleStage, visibleStages } from '../education/stages';
+import { isLessonVisible, moduleStages, visibleStages } from '../education/stages';
 import { calculateEDD, calculateEGAWeeks, calculateEGADetailed } from '../../services/ega-calculator';
 import { logger } from '../../utils/logger';
 import { aiService } from '../../services/ai';
@@ -292,8 +292,8 @@ export const patientsController = {
           where: { status: 'published' },
           orderBy: { created_at: 'desc' },
         });
-        const visible = published.filter((m) => stages.has(moduleStage(m)));
-        educationModule = visible.find((m) => moduleStage(m) === 'postpartum') || visible[0] || null;
+        const visible = published.filter((m) => isLessonVisible(m, stages));
+        educationModule = visible.find((m) => moduleStages(m).includes('postpartum')) || visible[0] || null;
       } else {
         educationModule = await prisma.educationModule.findFirst({
           where: {

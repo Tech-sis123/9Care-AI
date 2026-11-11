@@ -12,11 +12,39 @@ export const EDUCATION_STAGES = [
 export type EducationStage = (typeof EDUCATION_STAGES)[number]['id'];
 export const EDUCATION_STAGE_IDS = EDUCATION_STAGES.map((s) => s.id) as [EducationStage, ...EducationStage[]];
 
-/** Group a lesson belongs to; legacy rows only have a single week number. */
-export function moduleStage(mod: { stage?: string | null; week_number?: number | null }): EducationStage {
-  if (mod.stage && (EDUCATION_STAGE_IDS as string[]).includes(mod.stage)) return mod.stage as EducationStage;
-  if (mod.week_number == null) return 'general';
-  return trimesterStage(mod.week_number);
+type StagedModule = { stage?: string | null; week_number?: number | null };
+
+/**
+ * Groups a lesson is shown to. The stage column holds one id or several joined
+ * by commas ("trimester_2,trimester_3"); legacy rows only have a week number.
+ */
+export function moduleStages(mod: StagedModule): EducationStage[] {
+  const picked = normalizeStages((mod.stage || '').split(','));
+  if (picked.length) return picked;
+  if (mod.week_number == null) return ['general'];
+  return [trimesterStage(mod.week_number)];
+}
+
+/** First group of a lesson (for older app versions that show one). */
+export function moduleStage(mod: StagedModule): EducationStage {
+  return moduleStages(mod)[0];
+}
+
+/** Known ids only, in the standard order, no repeats. General already covers every week, so it stands alone. */
+export function normalizeStages(ids: readonly string[]): EducationStage[] {
+  const wanted = new Set(ids.map((s) => s.trim()));
+  if (wanted.has('general')) return ['general'];
+  return EDUCATION_STAGE_IDS.filter((id) => wanted.has(id));
+}
+
+/** Value saved in the stage column. */
+export function stagesColumn(stages: readonly string[]): string {
+  return normalizeStages(stages).join(',') || 'general';
+}
+
+/** Whether a patient who can see these groups sees the lesson. */
+export function isLessonVisible(mod: StagedModule, visible: Set<EducationStage>): boolean {
+  return moduleStages(mod).some((s) => visible.has(s));
 }
 
 export function trimesterStage(weeks: number): EducationStage {
