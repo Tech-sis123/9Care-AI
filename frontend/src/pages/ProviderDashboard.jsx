@@ -30,13 +30,35 @@ const STATUS_STYLE = {
   DONE:         'bg-primary text-on-primary',
 };
 
+// Reading material for doctors; the files live in frontend/public/resources/
 const RESOURCES = [
-  { title: 'ANC Protocol v3.2',            type: 'PDF',  size: '2.1 MB', category: 'Clinical' },
-  { title: 'Pre-eclampsia Management',     type: 'PDF',  size: '1.4 MB', category: 'Clinical' },
-  { title: 'WHO Antenatal Care Guidelines', type: 'PDF', size: '8.7 MB', category: 'Guidelines' },
-  { title: 'Danger Signs Quick Reference', type: 'PDF',  size: '0.5 MB', category: 'Emergency' },
-  { title: 'Pregnancy Nutrition Chart',    type: 'IMG',  size: '0.8 MB', category: 'Education' },
-  { title: 'Referral Forms',          type: 'DOC',  size: '0.3 MB', category: 'Admin' },
+  {
+    title: 'WHO recommendations on antenatal care for a positive pregnancy experience',
+    year: 2016,
+    about: 'The 49 WHO recommendations for routine antenatal care: nutrition, maternal and fetal assessment, preventive measures, common symptoms, and the 8-contact schedule.',
+    pages: 172,
+    size: '3.9 MB',
+    href: '/resources/who-antenatal-care-2016.pdf',
+    category: 'WHO guidelines',
+  },
+  {
+    title: 'Pregnancy, childbirth, postpartum and newborn care: a guide for essential practice (IMPAC)',
+    year: 2015,
+    about: 'Step-by-step clinical charts for assessing and managing women and newborns, including emergencies, referral and postpartum care.',
+    pages: 184,
+    size: '2.8 MB',
+    href: '/resources/who-pregnancy-childbirth-postpartum-newborn-care-2015.pdf',
+    category: 'WHO guidelines',
+  },
+  {
+    title: 'Digital adaptation kit for antenatal care',
+    year: 2021,
+    about: 'How WHO antenatal care guidance maps to digital records: workflows, decision support logic and data definitions.',
+    pages: 98,
+    size: '2.8 MB',
+    href: '/resources/who-digital-adaptation-kit-antenatal-care-2021.pdf',
+    category: 'WHO guidelines',
+  },
 ];
 
 const patientCode = (id) =>
@@ -1715,40 +1737,49 @@ const ResourcesView = () => (
   <div className="space-y-6">
     <div>
       <h2 className="font-headline-lg text-amber-900 text-2xl">Resources</h2>
-      <p className="font-body-md text-on-surface-variant/70 mt-1">Clinical guidelines, protocols, and materials</p>
+      <p className="font-body-md text-on-surface-variant/70 mt-1">Clinical guidelines and reading material for the care team</p>
     </div>
 
-    {['Clinical', 'Guidelines', 'Emergency', 'Education', 'Admin'].map(cat => {
-      const items = RESOURCES.filter(r => r.category === cat);
-      if (!items.length) return null;
-      return (
-        <div key={cat}>
-          <h3 className="font-label-sm text-on-surface-variant uppercase tracking-widest text-xs mb-3">{cat}</h3>
-          <div className="space-y-3">
-            {items.map(r => (
-              <div key={r.title} className="bg-white rounded-xl p-4 custom-shadow border border-amber-50 flex items-center justify-between group hover:border-primary/20 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs ${
-                    r.type === 'PDF' ? 'bg-secondary/10 text-secondary' :
-                    r.type === 'IMG' ? 'bg-primary/10 text-primary' :
-                    'bg-amber-100 text-amber-700'
-                  }`}>
-                    {r.type}
-                  </div>
-                  <div>
-                    <p className="font-body-md font-medium text-on-surface">{r.title}</p>
-                    <p className="font-label-sm text-outline text-xs">{r.size}</p>
-                  </div>
+    {[...new Set(RESOURCES.map(r => r.category))].map(cat => (
+      <div key={cat}>
+        <h3 className="font-label-sm text-on-surface-variant uppercase tracking-widest text-xs mb-3">{cat}</h3>
+        <div className="space-y-3">
+          {RESOURCES.filter(r => r.category === cat).map(r => (
+            <div key={r.href} className="bg-white rounded-xl p-4 custom-shadow border border-amber-50 flex flex-col sm:flex-row sm:items-center gap-4 hover:border-primary/20 transition-all">
+              <div className="flex items-start gap-4 flex-1 min-w-0">
+                <div className="w-10 h-10 shrink-0 rounded-lg flex items-center justify-center font-bold text-xs bg-secondary/10 text-secondary">
+                  PDF
                 </div>
-                <button className="p-2 hover:bg-primary/10 rounded-full transition-colors">
-                  <span className="material-symbols-outlined text-primary text-lg">download</span>
-                </button>
+                <div className="min-w-0">
+                  <p className="font-body-md font-medium text-on-surface">{r.title}</p>
+                  <p className="font-body-md text-sm text-on-surface-variant mt-0.5">{r.about}</p>
+                  <p className="font-label-sm text-outline text-xs mt-1">WHO · {r.year} · {r.pages} pages · {r.size}</p>
+                </div>
               </div>
-            ))}
-          </div>
+              <div className="flex gap-2 shrink-0 sm:ml-2">
+                <a
+                  href={r.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-95"
+                >
+                  <span className="material-symbols-outlined text-base" aria-hidden>menu_book</span>
+                  Read
+                </a>
+                <a
+                  href={r.href}
+                  download
+                  aria-label={`Download ${r.title}`}
+                  className="inline-flex items-center justify-center p-2 rounded-lg border border-outline-variant hover:bg-primary/10 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-primary text-lg" aria-hidden>download</span>
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
-      );
-    })}
+      </div>
+    ))}
   </div>
 );
 

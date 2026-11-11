@@ -3,6 +3,8 @@ node_modules
 .env
 node_modules
 *.pdf
+# Except reading material for doctors (served from the website's Resources tab)
+!frontend/public/resources/*.pdf
 .cache
 reports
 
