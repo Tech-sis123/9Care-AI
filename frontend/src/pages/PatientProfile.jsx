@@ -8,6 +8,7 @@ import { formatDeliveryDate } from '../lib/delivery';
 import WhatsAppNumberModal from '../components/WhatsAppNumberModal';
 import { formatWhatsappNumber } from '../lib/whatsapp';
 import DateOfBirthField from '../components/DateOfBirthField';
+import { useTour } from '../lib/tour';
 import { dateOfBirthIso, splitDateOfBirth, DATE_OF_BIRTH_ERROR } from '../lib/dateOfBirth';
 
 /** "15 Aug 1996 (30 years)"; older accounts may only have an age. */
@@ -265,6 +266,7 @@ const PatientProfile = () => {
     pregnancy?.gestational_age?.weeks ??
     null;
   const delivery = patient?.delivery?.delivered ? patient.delivery : null;
+  const { start: startTour } = useTour();
   // Gestational age is not shown once she has delivered
   const weeks =
     !delivery && weeksRaw != null && !Number.isNaN(Number(weeksRaw)) ? Number(weeksRaw) : null;
@@ -299,6 +301,7 @@ const PatientProfile = () => {
           <div>
             <button
               type="button"
+              data-tour="edit-details"
               disabled={saveLoading}
               onClick={() => (editing ? saveProfile() : setEditing(true))}
               className="px-4 py-1.5 rounded-full border border-white/30 font-label-sm text-xs hover:bg-white/10 transition-all disabled:opacity-60 disabled:cursor-wait inline-flex items-center gap-2"
@@ -482,6 +485,7 @@ const PatientProfile = () => {
             )}
             <button
               type="button"
+              data-tour="whatsapp"
               onClick={() => setShowWhatsappModal(true)}
               className="w-full py-3 rounded-xl font-label-sm text-sm border-2 bg-surface-container border-outline text-on-surface hover:bg-surface-container-high transition-colors"
             >
@@ -540,6 +544,7 @@ const PatientProfile = () => {
             </div>
             <button
               type="button"
+              data-tour="email"
               onClick={() => setShowEmailPrompt(true)}
               className="w-full py-3 rounded-xl font-label-sm text-sm border-2 bg-surface-container border-outline text-on-surface hover:bg-surface-container-high transition-colors"
             >
@@ -641,7 +646,21 @@ const PatientProfile = () => {
 
         {/* Actions */}
         <div className="space-y-3">
+          {/* Replays the guided tour from step 1 (doesn't change when she first saw it) */}
           <button
+            type="button"
+            onClick={() => startTour({ replay: true, postpartum: !!delivery })}
+            className="w-full flex items-center gap-3 p-4 bg-white rounded-xl card-shadow border border-outline-variant/30 hover:border-primary/20 transition-all group"
+          >
+            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <span className="material-symbols-outlined text-primary text-lg">tour</span>
+            </div>
+            <span className="font-body-md flex-grow text-on-surface text-left">How to use the app</span>
+            <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
+          </button>
+
+          <button
+            data-tour="health-assessment"
             onClick={() => navigate('/intake')}
             className="w-full flex items-center gap-3 p-4 bg-white rounded-xl card-shadow border border-outline-variant/30 hover:border-primary/20 transition-all group"
           >

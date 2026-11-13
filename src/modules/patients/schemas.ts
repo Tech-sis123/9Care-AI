@@ -102,3 +102,6 @@ export const visitSchema = z
       .catch(undefined),
   })
   .default({});
+
+/** POST /patients/me/tutorial */
+export const tutorialSchema = z.object({ skipped: z.boolean().default(false) }).default({ skipped: false });

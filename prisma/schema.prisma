@@ -38,8 +38,14 @@ model Patient {
   intake_last_saved_at  DateTime?
   /// Last time the patient opened the app (site visit tracking)
   last_seen_at          DateTime?
-  /// Count of unique calendar-day visits to the patient app
+  /// Mirror of the patient_site_visits row count (reports read the visits table)
   site_visit_count      Int      @default(0)
+  /// Guided tour of the app: when she finished or skipped it (null = not seen yet)
+  tutorial_seen_at      DateTime?
+  /// true when she pressed Skip (still counts as seen)
+  tutorial_skipped      Boolean  @default(false)
+  /// Tour version she saw; raising CURRENT_TUTORIAL_VERSION shows it again
+  tutorial_version      Int?
   /// WhatsApp number with country code (+234…); may differ from the OTP phone_number
   whatsapp_number       String?
   /// null = never asked, true = agreed to WhatsApp updates/reminders, false = withdrew consent

@@ -125,6 +125,8 @@ export const resetDoctorPassword = (token, new_password) =>
 
 export const getPatientMe = () => patientApi.get('/patients/me');
 // App opened / brought back to the foreground (the server counts a visit after 30+ minutes away)
+// Guided tour finished or skipped (both count as seen)
+export const markTutorialSeen = skipped => patientApi.post('/patients/me/tutorial', { skipped: !!skipped });
 export const recordPatientVisit = path => patientApi.post('/patients/me/visit', { path }, { quiet: true });
 export const getPatientDashboard = () => patientApi.get('/patients/me/dashboard');
 export const upsertProfile = data => patientApi.post('/patients/profile', data);

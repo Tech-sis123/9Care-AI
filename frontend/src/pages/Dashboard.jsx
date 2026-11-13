@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { getPatientDashboard, getPatientMe, askPatientAI } from '../lib/api';
 import { getPatientData, isPatientAuthenticated } from '../lib/auth';
+import { TOUR_SHOWN_KEY, useTour } from '../lib/tour';
 import WhatsAppContact from '../components/WhatsAppContact';
 import EmailPrompt from '../components/EmailPrompt';
 import DeliveryModal from '../components/DeliveryModal';
@@ -152,6 +153,7 @@ const PatientDashboard = () => {
   const [showWhatsappPrompt, setShowWhatsappPrompt] = useState(false);
   // Older accounts with no age: ask for her date of birth (shown before the other pop-ups)
   const [showDobPrompt, setShowDobPrompt] = useState(false);
+  const { active: tourActive, shownThisSession: tourSession, start: startTour } = useTour();
 
   useEffect(() => {
     if (!isPatientAuthenticated()) {
@@ -180,6 +182,10 @@ const PatientDashboard = () => {
         if (r.data?.needs_date_of_birth && sessionStorage.getItem('mc_dob_prompt_dismissed') !== '1') {
           setShowDobPrompt(true);
         }
+        // Guided tour: once per account (saved on the server), first thing after login
+        if (r.data?.tutorial?.show && sessionStorage.getItem(TOUR_SHOWN_KEY) !== '1') {
+          startTour({ postpartum: !!r.data?.delivery?.delivered });
+        }
       })
       .catch(() => {})
       .finally(done);
@@ -193,7 +199,7 @@ const PatientDashboard = () => {
       })
       .catch(() => {})
       .finally(done);
-  }, [navigate]);
+  }, [navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const firstName = patientData?.name?.split(' ')[0] || 'Mama';
   const pregnancy =
@@ -244,6 +250,15 @@ const PatientDashboard = () => {
     'not_started';
   // Stays on the dashboard (no dismiss) until she submits her health profile
   const needsProfileCompletion = !loadingEga && intakeStatus !== 'submitted';
+
+  // One pop-up at a time. The tour comes first; on the login it ran, the delivery question
+  // follows it, and the WhatsApp and email pop-ups wait for her next login.
+  const popup = (() => {
+    if (tourActive) return null;
+    const order = tourSession ? ['delivery', 'dob'] : ['dob', 'whatsapp', 'email', 'delivery'];
+    const wanted = { dob: showDobPrompt, whatsapp: showWhatsappPrompt, email: showEmailPrompt, delivery: !!deliveryModal };
+    return order.find((k) => wanted[k]) || null;
+  })();
 
   const nextApptLabel = (() => {
     if (!nextAppt) return null;
@@ -488,19 +503,19 @@ const PatientDashboard = () => {
 
         {/* Quick Actions Grid */}
         <section className="grid grid-cols-2 gap-4">
-          <button onClick={() => navigate('/appointments')} className="bg-surface-container-lowest p-4 rounded-xl card-shadow border border-surface-container flex flex-col items-center gap-3 text-center transition-transform active:scale-95 hover:border-primary/20 hover:shadow-md">
+          <button data-tour="book-appointment" onClick={() => navigate('/appointments')} className="bg-surface-container-lowest p-4 rounded-xl card-shadow border border-surface-container flex flex-col items-center gap-3 text-center transition-transform active:scale-95 hover:border-primary/20 hover:shadow-md">
             <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
               <CalendarCheck className="w-5 h-5 text-primary" />
             </div>
             <span className="font-label-sm text-xs text-on-surface">Book appointment</span>
           </button>
-          <button onClick={() => navigate('/education')} className="bg-surface-container-lowest p-4 rounded-xl card-shadow border border-surface-container flex flex-col items-center gap-3 text-center transition-transform active:scale-95 hover:border-primary/20 hover:shadow-md">
+          <button data-tour="learn" onClick={() => navigate('/education')} className="bg-surface-container-lowest p-4 rounded-xl card-shadow border border-surface-container flex flex-col items-center gap-3 text-center transition-transform active:scale-95 hover:border-primary/20 hover:shadow-md">
             <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-primary" />
             </div>
             <span className="font-label-sm text-xs text-on-surface">Learn</span>
           </button>
-          <button onClick={() => navigate('/emergency')} className="bg-[#FCEBEB] p-4 rounded-xl card-shadow border border-secondary/20 flex flex-col items-center gap-3 text-center transition-transform active:scale-95 hover:bg-secondary/10">
+          <button data-tour="report-symptoms" onClick={() => navigate('/emergency')} className="bg-[#FCEBEB] p-4 rounded-xl card-shadow border border-secondary/20 flex flex-col items-center gap-3 text-center transition-transform active:scale-95 hover:bg-secondary/10">
             <div className="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-secondary" />
             </div>
@@ -591,7 +606,7 @@ const PatientDashboard = () => {
             <BookOpen className="w-5 h-5" />
             <span className="text-[10px] font-label-sm">Learn</span>
           </button>
-          <button onClick={() => navigate('/profile')} className="flex flex-col items-center gap-1 text-outline hover:text-primary transition-colors">
+          <button data-tour="profile" onClick={() => navigate('/profile')} className="flex flex-col items-center gap-1 text-outline hover:text-primary transition-colors">
             <User className="w-5 h-5" />
             <span className="text-[10px] font-label-sm">Profile</span>
           </button>
@@ -612,7 +627,7 @@ const PatientDashboard = () => {
 
       <WhatsAppContact number={dashData?.support_whatsapp} />
 
-      {showDobPrompt ? (
+      {popup === 'dob' ? (
         <DateOfBirthModal
           onLater={() => {
             sessionStorage.setItem('mc_dob_prompt_dismissed', '1');
@@ -625,7 +640,7 @@ const PatientDashboard = () => {
         />
       ) : null}
 
-      {showWhatsappPrompt && !showDobPrompt ? (
+      {popup === 'whatsapp' ? (
         <WhatsAppNumberModal
           phoneNumber={dashData?.whatsapp?.phone_number}
           onLater={() => {
@@ -639,7 +654,7 @@ const PatientDashboard = () => {
         />
       ) : null}
 
-      {deliveryModal && !showEmailPrompt && !showWhatsappPrompt && !showDobPrompt ? (
+      {popup === 'delivery' ? (
         <DeliveryModal
           step={deliveryModal}
           pregnancyStart={dashData?.pregnancy_start}
@@ -655,7 +670,7 @@ const PatientDashboard = () => {
         />
       ) : null}
 
-      {showEmailPrompt && !showWhatsappPrompt && !showDobPrompt ? (
+      {popup === 'email' ? (
         <EmailPrompt
           mode={patientData?.needs_email || dashData?.needs_email ? 'add' : 'verify'}
           initialEmail={patientData?.email || dashData?.email || ''}

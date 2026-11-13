@@ -4,6 +4,7 @@ export const setPatientAuth = (accessToken, refreshToken, patient) => {
     sessionStorage.removeItem('mc_delivery_prompt_dismissed');
     sessionStorage.removeItem('mc_whatsapp_prompt_dismissed');
     sessionStorage.removeItem('mc_dob_prompt_dismissed');
+    sessionStorage.removeItem('mc_tour_shown');
   }
   localStorage.setItem('mc_patient_token', accessToken);
   localStorage.setItem('mc_patient_refresh', refreshToken);
@@ -29,6 +30,7 @@ export const clearPatientAuth = () => {
   );
   sessionStorage.removeItem('mc_delivery_prompt_dismissed');
   sessionStorage.removeItem('mc_whatsapp_prompt_dismissed');
+  sessionStorage.removeItem('mc_tour_shown');
 };
 
 export const clearDoctorAuth = () => {

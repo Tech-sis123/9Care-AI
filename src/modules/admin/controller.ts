@@ -7,6 +7,7 @@ import { NotFoundError, ValidationError } from '../../utils/errors';
 import { processRetentionSms } from '../../jobs/retentionSms';
 import { isSmsPhone } from '../../utils/contact';
 import { retentionStats } from '../../services/site-visits';
+import { tutorialStats } from '../../utils/tutorial';
 
 export const adminController = {
   /**
@@ -58,7 +59,7 @@ export const adminController = {
       });
 
       // Retention comes from the visits table, not patients.site_visit_count
-      const siteVisits = await retentionStats();
+      const [siteVisits, tutorial] = await Promise.all([retentionStats(), tutorialStats()]);
 
       res.status(200).json({
         risk_distribution: distribution,
@@ -66,6 +67,8 @@ export const adminController = {
         alerts_this_week: alertsThisWeek,
         open_alerts: openAlerts,
         site_visits: siteVisits,
+        // Guided tour: finished / skipped / not seen yet (current version)
+        tutorial,
       });
     } catch (err) {
       next(err);

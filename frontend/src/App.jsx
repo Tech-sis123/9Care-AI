@@ -15,11 +15,13 @@ import ResetPassword from "./pages/ResetPassword"
 import VerifyEmail from "./pages/VerifyEmail"
 import RecoverAccount from "./pages/RecoverAccount"
 import VisitTracker from "./components/VisitTracker"
+import { TourProvider } from "./components/AppTour"
 
 export default function App() {
   return (
     <BrowserRouter>
       <VisitTracker />
+      <TourProvider>
       <Routes>
         <Route path='/' element={<Landing />} />
         <Route path='/register' element={<RegistrationFlow />} />
@@ -37,6 +39,7 @@ export default function App() {
         <Route path='/verify-email' element={<VerifyEmail />} />
         <Route path='/recover' element={<RecoverAccount />} />
       </Routes>
+      </TourProvider>
     </BrowserRouter>
   )
 }

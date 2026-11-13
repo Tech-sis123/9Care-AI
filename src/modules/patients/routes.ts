@@ -3,7 +3,7 @@ import { patientsController } from './controller';
 import { authenticate } from '../../middleware/auth';
 import { rbac } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
-import { createProfileSchema, createPregnancySchema, askQuestionSchema, deliverySchema, whatsappSchema, visitSchema } from './schemas';
+import { createProfileSchema, createPregnancySchema, askQuestionSchema, deliverySchema, whatsappSchema, visitSchema, tutorialSchema } from './schemas';
 
 const router = Router();
 
@@ -29,6 +29,14 @@ router.post(
   rbac('patient'),
   validate(visitSchema),
   patientsController.recordVisit
+);
+
+router.post(
+  '/me/tutorial',
+  authenticate,
+  rbac('patient'),
+  validate(tutorialSchema),
+  patientsController.markTutorialSeen
 );
 
 router.get(

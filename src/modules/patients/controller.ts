@@ -18,6 +18,7 @@ import { recordPatientSiteVisit } from '../../services/site-visits';
 import { isUsableEmail } from '../../utils/contact';
 import { whatsappContact, whatsappStatus } from '../../services/whatsappContact';
 import { env } from '../../config/env';
+import { CURRENT_TUTORIAL_VERSION, tutorialStatus } from '../../utils/tutorial';
 import { ageOn, parseDateOfBirth, refreshedAge } from '../../utils/dateOfBirth';
 
 /** Updates the stored age once her birthday has passed (age is read by the risk engine and doctors). */
@@ -193,6 +194,24 @@ export const patientsController = {
   },
 
   /**
+   * POST /patients/me/tutorial — she finished or skipped the guided tour (both count as seen).
+   * Replays from the profile page don't call this, so the first date is kept.
+   */
+  async markTutorialSeen(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { skipped } = req.body as { skipped: boolean };
+      const patient = await prisma.patient.update({
+        where: { id: req.user!.id },
+        data: { tutorial_seen_at: new Date(), tutorial_skipped: skipped, tutorial_version: CURRENT_TUTORIAL_VERSION },
+        select: { tutorial_seen_at: true, tutorial_skipped: true, tutorial_version: true },
+      });
+      res.status(200).json({ tutorial: patient });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * GET /patients/me — full profile + pregnancy
    */
   async getMe(req: AuthRequest, res: Response, next: NextFunction) {
@@ -336,6 +355,8 @@ export const patientsController = {
         whatsapp: whatsappStatus(patient),
         // Older accounts with no age: the dashboard asks for her date of birth
         needs_date_of_birth: needsDateOfBirth(patient),
+        // Guided tour: shown once (per tour version) after her health profile is submitted
+        tutorial: tutorialStatus(patient),
         last_seen_at: patient.last_seen_at,
       });
     } catch (err) {
