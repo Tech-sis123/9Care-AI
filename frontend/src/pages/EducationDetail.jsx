@@ -587,6 +587,33 @@ const EducationDetail = () => {
     return s;
   });
 
+  // Lesson title, badges and summary
+  const lessonHeading = (
+    <>
+      <div className="px-5 pt-5 pb-4 flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className={`${tc.bg} ${tc.text} px-3 py-1 rounded-full font-label-sm text-[10px] uppercase tracking-wide flex items-center gap-1 font-semibold`}>
+              <span className="material-symbols-outlined text-[12px]">{mod.typeIcon}</span>
+              {mod.type}{mod.duration ? ` · ${mod.duration}` : ''}
+            </span>
+            <span className="bg-tertiary-fixed text-primary px-3 py-1 rounded-full font-label-sm text-[10px] uppercase tracking-wide font-semibold">
+              {mod.week}
+            </span>
+            {!isVideo && (
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
+                Mama-Friendly Language
+              </span>
+            )}
+          </div>
+          <h2 className="font-headline-lg text-primary text-xl leading-snug font-bold">{mod.title}</h2>
+          <p className="text-on-surface-variant text-sm mt-1">{mod.subtitle}</p>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="font-body-md text-on-surface min-h-screen">
       <div className="grain-overlay" />
@@ -690,37 +717,50 @@ const EducationDetail = () => {
           </div>
         )}
 
-        {/* ── VIDEO TRANSCRIPT ── */}
-        {isVideo && mod.transcript && (
-          <div className="px-5 pt-4">
-            <div className="bg-surface-container-lowest border border-amber-900/10 rounded-2xl shadow-xs overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setTranscriptOpen((o) => !o)}
-                aria-expanded={transcriptOpen}
-                className="w-full px-4 py-3 flex items-center justify-between gap-3 cursor-pointer"
-              >
-                <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[18px] text-primary">subtitles</span>
-                  Video Transcript
-                </span>
-                <span className="text-[11px] font-semibold text-primary flex items-center gap-0.5">
-                  {transcriptOpen ? 'Hide' : 'Read along'}
-                  <span className="material-symbols-outlined text-[16px]">{transcriptOpen ? 'expand_less' : 'expand_more'}</span>
-                </span>
-              </button>
-              {transcriptOpen ? (
-                <div className="px-4 pb-4 max-h-96 overflow-y-auto text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap border-t border-amber-900/10 pt-3">
-                  {mod.transcript}
+        {/* ── VIDEO: title and summary, transcript, then comments, all visible without scrolling far ── */}
+        {isVideo && (
+          <>
+            {lessonHeading}
+            {mod.transcript && (
+              <div className="px-5 pt-4">
+                <div className="bg-surface-container-lowest border border-amber-900/10 rounded-2xl shadow-xs overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setTranscriptOpen((o) => !o)}
+                    aria-expanded={transcriptOpen}
+                    className="w-full px-4 py-3 flex items-center justify-between gap-3 cursor-pointer"
+                  >
+                    <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[18px] text-primary">subtitles</span>
+                      Video Transcript
+                    </span>
+                    <span className="text-[11px] font-semibold text-primary flex items-center gap-0.5">
+                      {transcriptOpen ? 'Hide' : 'Read along'}
+                      <span className="material-symbols-outlined text-[16px]">{transcriptOpen ? 'expand_less' : 'expand_more'}</span>
+                    </span>
+                  </button>
+                  {transcriptOpen ? (
+                    <div className="px-4 pb-4 max-h-96 overflow-y-auto text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap border-t border-amber-900/10 pt-3">
+                      {mod.transcript}
+                    </div>
+                  ) : (
+                    <p className="px-4 pb-3 text-xs text-on-surface-variant/80 line-clamp-2">{mod.transcript}</p>
+                  )}
                 </div>
-              ) : (
-                <p className="px-4 pb-3 text-xs text-on-surface-variant/80 line-clamp-2">{mod.transcript}</p>
-              )}
-            </div>
-          </div>
+              </div>
+            )}
+
+            {apiModule?.id && !staticMatch && (
+              <div className="pt-5">
+                <LessonComments moduleId={apiModule.id} />
+              </div>
+            )}
+            <div className="h-px bg-outline-variant/20 mx-5" />
+          </>
         )}
 
-        {/* ── READING MODE SELECTOR (Mama Friendly vs Pidgin vs Clinical) ── */}
+        {/* ── READING MODE SELECTOR (articles only; videos have no text to switch) ── */}
+        {!isVideo && (
         <div className="px-5 pt-4">
           <div className="bg-surface-container-lowest border border-amber-900/10 rounded-2xl p-3 shadow-xs">
             <div className="flex items-center justify-between mb-2">
@@ -784,32 +824,16 @@ const EducationDetail = () => {
             </p>
           </div>
         </div>
+        )}
 
         {/* ── CONTENT BODY ── */}
         <div className="flex-1 flex flex-col pb-40">
-          {/* Module meta strip */}
-          <div className="px-5 pt-5 pb-4 flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className={`${tc.bg} ${tc.text} px-3 py-1 rounded-full font-label-sm text-[10px] uppercase tracking-wide flex items-center gap-1 font-semibold`}>
-                  <span className="material-symbols-outlined text-[12px]">{mod.typeIcon}</span>
-                  {mod.type}{mod.duration ? ` · ${mod.duration}` : ''}
-                </span>
-                <span className="bg-tertiary-fixed text-primary px-3 py-1 rounded-full font-label-sm text-[10px] uppercase tracking-wide font-semibold">
-                  {mod.week}
-                </span>
-                <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
-                  Mama-Friendly Language
-                </span>
-              </div>
-              <h2 className="font-headline-lg text-primary text-xl leading-snug font-bold">{mod.title}</h2>
-              <p className="text-on-surface-variant text-sm mt-1">{mod.subtitle}</p>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="h-px bg-outline-variant/20 mx-5" />
+          {!isVideo && (
+            <>
+              {lessonHeading}
+              <div className="h-px bg-outline-variant/20 mx-5" />
+            </>
+          )}
 
           {/* Content sections */}
           <div className="px-5 py-6 space-y-8">
@@ -903,9 +927,6 @@ const EducationDetail = () => {
             })}
           </div>
 
-          {/* Questions & comments on video lessons (database lessons only) */}
-          {isVideo && apiModule?.id && !staticMatch && <LessonComments moduleId={apiModule.id} />}
-
           {/* Link to the original article */}
           {mod.article_url && (
             <div className="px-5 pb-6">
@@ -973,6 +994,10 @@ const EducationDetail = () => {
 
         {/* ── FLOATING WHATSAPP CONTACT WITH BUBBLE ── */}
         <WhatsAppContact
+          // On videos the comments sit just below the video: no bubble, and the button on the right
+          key={isVideo ? 'video' : 'other'}
+          initialBubble={!isVideo}
+          side={isVideo ? 'right' : 'left'}
           bubbleText="Question about this lesson? Chat with a Doctor 👋"
           customMessage={`Hello Doctor, I was reading the lesson on "${mod.title}" in 9Care and wanted to ask a question.`}
         />

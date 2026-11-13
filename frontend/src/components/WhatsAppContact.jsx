@@ -8,8 +8,8 @@ const digitsOf = (value) => String(value || '').replace(/\D/g, '');
  * Floating WhatsApp button with interactive speech bubble on top.
  * Number comes from the API (dashboard) or VITE_SUPPORT_WHATSAPP. Live clinic number: +234 803 402 7044.
  */
-export default function WhatsAppContact({ number, customMessage, bubbleText }) {
-  const [showBubble, setShowBubble] = useState(true);
+export default function WhatsAppContact({ number, customMessage, bubbleText, initialBubble = true, side = 'left' }) {
+  const [showBubble, setShowBubble] = useState(initialBubble);
 
   const digits =
     digitsOf(number) ||
@@ -20,7 +20,7 @@ export default function WhatsAppContact({ number, customMessage, bubbleText }) {
   const href = `https://wa.me/${digits}?text=${encodeURIComponent(defaultMessage)}`;
 
   return (
-    <div className="fixed bottom-24 left-5 z-50 flex flex-col items-start select-none">
+    <div className={`fixed bottom-24 z-50 flex flex-col select-none ${side === 'right' ? 'right-5 items-end' : 'left-5 items-start'}`}>
       {/* Speech Bubble on top of the WhatsApp Icon */}
       {showBubble && (
         <div className="relative mb-2.5 max-w-[210px] animate-fade-in">
