@@ -30,7 +30,8 @@ const STATUS_STYLE = {
   DONE:         'bg-primary text-on-primary',
 };
 
-// Reading material for doctors; the files live in frontend/public/resources/
+// Reading material for doctors; the files live in frontend/public/resources/.
+// The WHO digital adaptation kit is AI context only (docs/ -> npm run kb:build), not listed here.
 const RESOURCES = [
   {
     title: 'WHO recommendations on antenatal care for a positive pregnancy experience',
@@ -48,15 +49,6 @@ const RESOURCES = [
     pages: 184,
     size: '2.8 MB',
     href: '/resources/who-pregnancy-childbirth-postpartum-newborn-care-2015.pdf',
-    category: 'WHO guidelines',
-  },
-  {
-    title: 'Digital adaptation kit for antenatal care',
-    year: 2021,
-    about: 'How WHO antenatal care guidance maps to digital records: workflows, decision support logic and data definitions.',
-    pages: 98,
-    size: '2.8 MB',
-    href: '/resources/who-digital-adaptation-kit-antenatal-care-2021.pdf',
     category: 'WHO guidelines',
   },
 ];
